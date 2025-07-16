@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:puvi/src/homepage/homapage.controller.dart';
+import 'package:puvi/src/homepage/homepage.service.dart';
+import 'package:puvi/src/homepage/hompage.view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -13,49 +17,56 @@ class MyApp extends StatelessWidget {
     //
     // The ListenableBuilder Widget listens to the SettingsController for changes.
     // Whenever the user updates their settings, the MaterialApp is rebuilt.
-    return MaterialApp(
-      // Providing a restorationScopeId allows the Navigator built by the
-      // MaterialApp to restore the navigation stack when a user leaves and
-      // returns to the app after it has been killed while running in the
-      // background.
-      restorationScopeId: 'app',
-    debugShowCheckedModeBanner: false,
-      title: "PuviPure",
-      theme: ThemeData(),
-      darkTheme: ThemeData.dark(),
-      // themeMode: settingsController.themeMode,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => HomescreenController(HomescreenService()),
+        )
+      ],
+      child: MaterialApp(
+        // Providing a restorationScopeId allows the Navigator built by the
+        // MaterialApp to restore the navigation stack when a user leaves and
+        // returns to the app after it has been killed while running in the
+        // background.
+        restorationScopeId: 'app',
+        debugShowCheckedModeBanner: false,
+        title: "PuviPure",
+        theme: ThemeData(),
+        darkTheme: ThemeData.dark(),
+        home: HomeScreen(),
+        // themeMode: settingsController.themeMode,
 
-      // Define a function to handle named routes in order to support
-      // Flutter web url navigation and deep linking.
-      onGenerateRoute: (RouteSettings routeSettings) {
-        return MaterialPageRoute<void>(
-          settings: routeSettings,
-          builder: (BuildContext context) {
-            switch (routeSettings.name) {
-              default:
-                return Container(
-                  color: const Color.fromARGB(255, 150, 205, 152),
-                  child: Center(
+        // Define a function to handle named routes in order to support
+        // Flutter web url navigation and deep linking.
+        onGenerateRoute: (RouteSettings routeSettings) {
+          return MaterialPageRoute<void>(
+            settings: routeSettings,
+            builder: (BuildContext context) {
+              switch (routeSettings.name) {
+                default:
+                  return Container(
+                    color: const Color.fromARGB(255, 150, 205, 152),
                     child: Center(
-                      child: Text(
-                        "PUVI PURE (Under Construction)",
-                        maxLines: 1,
-                        
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: const Color.fromARGB(255, 13, 155, 220),
-                          fontSize: 18,
-                          decoration: TextDecoration.none,
+                      child: Center(
+                        child: Text(
+                          "PUVI PURE (Under Construction)",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 13, 155, 220),
+                            fontSize: 18,
+                            decoration: TextDecoration.none,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-            }
-          },
-        );
-      },
+                  );
+              }
+            },
+          );
+        },
+      ),
     );
   }
 }
