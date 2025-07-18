@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:puvi/project/routes/app_route_config.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/homepage/homepage.service.dart';
 import 'package:puvi/src/homepage/hompage.view.dart';
@@ -13,60 +14,85 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Glue the SettingsController to the MaterialApp.
-    //
-    // The ListenableBuilder Widget listens to the SettingsController for changes.
-    // Whenever the user updates their settings, the MaterialApp is rebuilt.
+    final GoRouter appRouter = MyAppRouter().router;
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (context) => HomescreenController(HomescreenService()),
         )
       ],
-      child: MaterialApp(
-        // Providing a restorationScopeId allows the Navigator built by the
-        // MaterialApp to restore the navigation stack when a user leaves and
-        // returns to the app after it has been killed while running in the
-        // background.
+      child: MaterialApp.router(
         restorationScopeId: 'app',
+        routerConfig: appRouter,
         debugShowCheckedModeBanner: false,
         title: "PuviPure",
         theme: ThemeData(),
         darkTheme: ThemeData.dark(),
-        home: HomeScreen(),
+        supportedLocales: const [
+          Locale('en', ''), // English
+        ],
+        //home: HomeScreen(),
         // themeMode: settingsController.themeMode,
 
         // Define a function to handle named routes in order to support
         // Flutter web url navigation and deep linking.
-        onGenerateRoute: (RouteSettings routeSettings) {
-          return MaterialPageRoute<void>(
-            settings: routeSettings,
-            builder: (BuildContext context) {
-              switch (routeSettings.name) {
-                default:
-                  return Container(
-                    color: const Color.fromARGB(255, 150, 205, 152),
-                    child: Center(
-                      child: Center(
-                        child: Text(
-                          "PUVI PURE (Under Construction)",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: const Color.fromARGB(255, 13, 155, 220),
-                            fontSize: 18,
-                            decoration: TextDecoration.none,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-              }
-            },
-          );
-        },
+        // onGenerateRoute: (RouteSettings routeSettings) {
+        //   return MaterialPageRoute<void>(
+        //     settings: routeSettings,
+        //     builder: (BuildContext context) {
+        //       switch (routeSettings.name) {
+        //         default:
+        //           return Container(
+        //             color: const Color.fromARGB(255, 150, 205, 152),
+        //             child: Center(
+        //               child: Center(
+        //                 child: Text(
+        //                   "PUVI PURE (Under Construction)",
+        //                   maxLines: 1,
+        //                   overflow: TextOverflow.ellipsis,
+        //                   textAlign: TextAlign.center,
+        //                   style: TextStyle(
+        //                     color: const Color.fromARGB(255, 13, 155, 220),
+        //                     fontSize: 18,
+        //                     decoration: TextDecoration.none,
+        //                   ),
+        //                 ),
+        //               ),
+        //             ),
+        //           );
+        //       }
+        //     },
+        //   );
+        // },
       ),
+
+      // child: MaterialApp(
+      //   restorationScopeId: 'app',
+      //   debugShowCheckedModeBanner: false,
+      //   title: "PuviPure",
+      //   theme: ThemeData(),
+      //   darkTheme: ThemeData.dark(),
+      //   supportedLocales: const [
+      //     Locale('en', ''), // English
+      //   ],
+      //   home: HomeScreen(),
+      //   routes: {
+      //     HomeScreen.routeName: (context) => const HomeScreen(),
+      //   },
+      //   onGenerateRoute: (RouteSettings routeSettings) {
+      //     return MaterialPageRoute<void>(
+      //       settings: routeSettings,
+      //       builder: (BuildContext context) {
+      //         switch (routeSettings.name) {
+      //           case HomeScreen.routeName:
+      //             return const HomeScreen();
+      //           default:
+      //             return const HomeScreen();
+      //         }
+      //       },
+      //     );
+      //   },
+      // ),
     );
   }
 }

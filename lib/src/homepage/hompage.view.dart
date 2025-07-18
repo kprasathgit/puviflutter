@@ -11,6 +11,7 @@ import 'package:puvi/src/widget/productcard.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  static const routeName = "/HomeScreen";
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
