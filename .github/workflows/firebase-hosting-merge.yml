@@ -27,7 +27,7 @@ jobs:
 
       # Step 4: Build Flutter web app
       - name: Build Flutter web app
-        run: flutter build web --no-tree-shake-icons --pwa-strategy=none
+        run: flutter build web --no-tree-shake-icons --pwa-strategy=injectManifest
 
       # Step 5: Deploy to Firebase Hosting
       - name: Deploy to Firebase Hosting

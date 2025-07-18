@@ -136,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
             iconTheme:
                 const IconThemeData(color: Colors.white), // ✅ Drawer icon color
             title: Text(
-              'PuviPure - $selectedTitle',
+              'PUVIPURE - $selectedTitle',
               style: const TextStyle(color: Colors.black), // ✅ Text color
             ),
             centerTitle: true,
