@@ -16,15 +16,10 @@ jobs:
       # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
-      
-      - name: Remove any preinstalled Flutter (optional but safe)
-        run: rm -rf "$HOME/flutter"
 
       # Step 2: Set up Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2.18.0
-        with:
-          flutter-version: '3.32.7' # 👈 use latest version supporting injectManifest
 
       # Step 3: Install Flutter dependencies
       - name: Install Flutter dependencies
@@ -32,7 +27,7 @@ jobs:
 
       # Step 4: Build Flutter web app
       - name: Build Flutter web app
-        run: flutter build web --no-tree-shake-icons --pwa-strategy=injectManifest
+        run: flutter build web --no-tree-shake-icons
 
       # Step 5: Deploy to Firebase Hosting
       - name: Deploy to Firebase Hosting
