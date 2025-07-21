@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:puvi/src/homepage/homepage.service.dart';
 import 'package:puvi/src/models/product.dart';
+import 'package:collection/collection.dart';
 
 class HomescreenController with ChangeNotifier {
   HomescreenController(this.homescreenService);
@@ -31,5 +32,43 @@ class HomescreenController with ChangeNotifier {
     return listProduct
         .where((p) => p.category.categorycode == catcode)
         .toList();
+  }
+
+  /// Gets product by ID either from cache or by fetching from API
+  Future<Product?> getProductByIdOrFetch(String proCode) async {
+    // Try from cache
+    Product? cached = listProduct.firstWhereOrNull((p) => p.procode == proCode);
+    if (cached != null) return cached;
+
+    // Not in memory, fetch from backend
+    try {
+      final product = await homescreenService.fetchProductById(proCode);
+      if (product != null) {
+        listProduct.add(product);
+        notifyListeners();
+      }
+      return product;
+    } catch (e) {
+      print("❌ Failed to fetch product by ID: $e");
+      return null;
+    }
+  }
+
+  /// Gets product by slug (used in ProductDetailsScreen)
+  Future<Product?> getProductBySlug(String slug) async {
+    Product? cached = listProduct.firstWhereOrNull((p) => p.slug == slug);
+    if (cached != null) return cached;
+
+    try {
+      final product = await homescreenService.fetchProductBySlug(slug);
+      if (product != null) {
+        listProduct.add(product);
+        notifyListeners();
+      }
+      return product;
+    } catch (e) {
+      print("❌ Failed to fetch product by Slug: $e");
+      return null;
+    }
   }
 }

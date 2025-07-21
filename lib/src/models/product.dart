@@ -15,6 +15,7 @@ class Product {
   final String isactive;
   final int displayorder;
   final Category category;
+  final String slug;
   Product({
     required this.id,
     required this.procode,
@@ -28,6 +29,7 @@ class Product {
     required this.isactive,
     required this.displayorder,
     required this.category,
+    required this.slug,
   });
 
   Product copyWith({
@@ -43,6 +45,7 @@ class Product {
     String? isactive,
     int? displayorder,
     Category? category,
+    String? slug,
   }) {
     return Product(
       id: id ?? this.id,
@@ -57,6 +60,7 @@ class Product {
       isactive: isactive ?? this.isactive,
       displayorder: displayorder ?? this.displayorder,
       category: category ?? this.category,
+      slug: slug ?? this.slug,
     );
   }
 
@@ -75,6 +79,7 @@ class Product {
     result.addAll({'isactive': isactive});
     result.addAll({'displayorder': displayorder});
     result.addAll({'category': category.toMap()});
+    result.addAll({'slug': slug});
 
     return result;
   }
@@ -93,6 +98,7 @@ class Product {
       isactive: map['isactive'] ?? '',
       displayorder: map['displayorder']?.toInt() ?? 0,
       category: Category.fromMap(map['category']),
+      slug: map['slug'] ?? '',
     );
   }
 
@@ -103,7 +109,7 @@ class Product {
 
   @override
   String toString() {
-    return 'Product(id: $id, procode: $procode, proname: $proname, description: $description, price: $price, priceqty: $priceqty, priceqtyunit: $priceqtyunit, stockqty: $stockqty, imageurl: $imageurl, isactive: $isactive, displayorder: $displayorder, category: $category)';
+    return 'Product(id: $id, procode: $procode, proname: $proname, description: $description, price: $price, priceqty: $priceqty, priceqtyunit: $priceqtyunit, stockqty: $stockqty, imageurl: $imageurl, isactive: $isactive, displayorder: $displayorder, category: $category, slug: $slug)';
   }
 
   @override
@@ -122,7 +128,8 @@ class Product {
         other.imageurl == imageurl &&
         other.isactive == isactive &&
         other.displayorder == displayorder &&
-        other.category == category;
+        other.category == category &&
+        other.slug == slug;
   }
 
   @override
@@ -138,6 +145,7 @@ class Product {
         imageurl.hashCode ^
         isactive.hashCode ^
         displayorder.hashCode ^
-        category.hashCode;
+        category.hashCode ^
+        slug.hashCode;
   }
 }

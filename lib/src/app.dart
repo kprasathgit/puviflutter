@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:puvi/project/routes/app_route_config.dart';
+import 'package:puvi/src/cart/cart.controller.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/homepage/homepage.service.dart';
 import 'package:puvi/src/homepage/hompage.view.dart';
@@ -19,6 +21,9 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (context) => HomescreenController(HomescreenService()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CartController(),
         )
       ],
       child: MaterialApp.router(
