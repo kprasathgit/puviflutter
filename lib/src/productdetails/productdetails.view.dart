@@ -6,6 +6,7 @@ import 'package:puvi/src/common/commonappbar.dart';
 import 'package:puvi/src/common/keyboardscrollable.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/models/product.dart';
+import 'package:puvi/src/widget/commonwidget.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final String slug;
@@ -38,8 +39,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   void addToCart(Product product) {
     cartController.add(product, qty);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Added to cart')),
+    CommonWidget.showTopToast(
+      context,
+      message: '✔ Added to Cart',
+      icon: Icons.shopping_cart,
+      backgroundColor: Colors.green.shade700,
     );
   }
 
@@ -75,7 +79,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("❌ Product not found", style: TextStyle(fontSize: 18)),
+                  const Text("❌ Product not found",
+                      style: TextStyle(fontSize: 18)),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () => context.go('/'),
@@ -114,7 +119,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
           bottomNavigationBar: !isWide
               ? Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   color: Colors.white,
                   child: Row(
                     children: [
@@ -163,11 +169,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _qtyButton(Icons.remove, qty > 1 ? () => setState(() => qty--) : null),
+              _qtyButton(
+                  Icons.remove, qty > 1 ? () => setState(() => qty--) : null),
               const SizedBox(width: 12),
               Text(
                 '$qty',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 12),
               _qtyButton(Icons.add, () => setState(() => qty++)),
@@ -207,13 +215,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         const SizedBox(height: 8),
         Text('₹${product.price}',
             style: const TextStyle(
-                fontSize: 20, fontWeight: FontWeight.w600, color: Colors.green)),
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.green)),
         const SizedBox(height: 12),
         Text(product.description, style: const TextStyle(fontSize: 16)),
         _buildSection("Ingredients", "Aloe Vera, Neem, Tulsi, Rose Water"),
-        _buildSection("Benefits", "Hydrates skin, clears acne, refreshes tone."),
+        _buildSection(
+            "Benefits", "Hydrates skin, clears acne, refreshes tone."),
         _buildSection("How to Use", "Apply gently to clean skin twice a day."),
-        _buildSection("Reviews", "⭐️⭐️⭐️⭐️☆ (4.2)\nExcellent product for daily use! - A user"),
+        _buildSection("Reviews",
+            "⭐️⭐️⭐️⭐️☆ (4.2)\nExcellent product for daily use! - A user"),
         _buildSection("You May Also Like", "Related product cards here..."),
         _buildPagination(),
       ],
@@ -260,7 +272,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           border: Border.all(color: Colors.grey.shade600),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Icon(icon, size: 20, color: onPressed == null ? Colors.grey : Colors.black),
+        child: Icon(icon,
+            size: 20, color: onPressed == null ? Colors.grey : Colors.black),
       ),
     );
   }
