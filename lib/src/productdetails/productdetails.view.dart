@@ -43,7 +43,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       context,
       message: '✔ Added to Cart',
       icon: Icons.shopping_cart,
-      backgroundColor: Colors.green.shade700,
+      backgroundColor: const Color.fromARGB(255, 188, 204, 95),
     );
   }
 
@@ -157,7 +157,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             child: Image.network(product.imageurl, fit: BoxFit.cover),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 13),
 
         // ✅ Quantity Selector
         Container(

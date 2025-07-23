@@ -4,7 +4,7 @@ class CommonWidget {
   static void showTopToast(
     BuildContext context, {
     required String message,
-    Duration duration = const Duration(seconds: 1),
+    Duration duration = const Duration(seconds: 2),
     Color backgroundColor = Colors.black87,
     Color textColor = Colors.white,
     IconData? icon,
@@ -15,10 +15,11 @@ class CommonWidget {
     final overlayEntry = OverlayEntry(
       builder: (context) {
         final isSmallScreen = MediaQuery.of(context).size.width < 500;
+        Size size = MediaQuery.of(context).size;
         return Positioned(
           top: isSmallScreen ? 30 : 50,
-          left: 16,
-          right: 16,
+          left: size.width * 0.4,
+          right: size.width * 0.4,
           child: Material(
             color: Colors.transparent,
             child: AnimatedOpacity(

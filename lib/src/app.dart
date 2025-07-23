@@ -31,7 +31,10 @@ class MyApp extends StatelessWidget {
         routerConfig: appRouter,
         debugShowCheckedModeBanner: false,
         title: "PuviPure",
-        theme: ThemeData(),
+        theme: ThemeData(
+          fontFamily: 'Poppins',
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        ),
         darkTheme: ThemeData.dark(),
         supportedLocales: const [
           Locale('en', ''), // English

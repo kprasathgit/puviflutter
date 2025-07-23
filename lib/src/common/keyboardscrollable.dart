@@ -23,7 +23,6 @@ class KeyboardScrollable extends StatefulWidget {
 class _KeyboardScrollableState extends State<KeyboardScrollable> {
   late final ScrollController _scrollController;
   final FocusNode _focusNode = FocusNode();
-  Timer? _holdScrollTimer;
 
   @override
   void initState() {
@@ -35,51 +34,48 @@ class _KeyboardScrollableState extends State<KeyboardScrollable> {
   void dispose() {
     _scrollController.dispose();
     _focusNode.dispose();
-    _holdScrollTimer?.cancel();
     super.dispose();
   }
 
   KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
-    if (event is KeyRepeatEvent || event is KeyDownEvent) {
-      const scrollStep = 80.0;
-      const pageStep = 300.0;
-      final maxScroll = _scrollController.position.maxScrollExtent;
-      final minScroll = _scrollController.position.minScrollExtent;
-      final currentOffset = _scrollController.offset;
+    if (event is KeyDownEvent || event is KeyRepeatEvent) {
+      const double scrollStep = 60.0;
+      const double pageStep = 300.0;
 
-      void scrollTo(double offset) {
+      if (!_scrollController.hasClients) return KeyEventResult.ignored;
+
+      final double maxScroll = _scrollController.position.maxScrollExtent;
+      final double minScroll = _scrollController.position.minScrollExtent;
+      final double currentOffset = _scrollController.offset;
+
+      void smoothScrollTo(double offset) {
         _scrollController.animateTo(
           offset.clamp(minScroll, maxScroll),
-          duration: const Duration(milliseconds: 100),
-          curve: Curves.easeOut,
+          duration: const Duration(milliseconds: 30 ),
+          curve: Curves.easeOutCubic,
         );
       }
 
       switch (event.logicalKey.keyLabel) {
         case 'Arrow Down':
-          scrollTo(currentOffset + scrollStep);
+          smoothScrollTo(currentOffset + scrollStep);
           return KeyEventResult.handled;
         case 'Arrow Up':
-          scrollTo(currentOffset - scrollStep);
+          smoothScrollTo(currentOffset - scrollStep);
           return KeyEventResult.handled;
         case 'Page Down':
-          scrollTo(currentOffset + pageStep);
+          smoothScrollTo(currentOffset + pageStep);
           return KeyEventResult.handled;
         case 'Page Up':
-          scrollTo(currentOffset - pageStep);
+          smoothScrollTo(currentOffset - pageStep);
           return KeyEventResult.handled;
         case 'Home':
-          scrollTo(minScroll);
+          smoothScrollTo(minScroll);
           return KeyEventResult.handled;
         case 'End':
-          scrollTo(maxScroll);
+          smoothScrollTo(maxScroll);
           return KeyEventResult.handled;
       }
-    }
-
-    if (event is KeyUpEvent) {
-      _holdScrollTimer?.cancel();
-      _holdScrollTimer = null;
     }
 
     return KeyEventResult.ignored;
@@ -104,7 +100,7 @@ class _KeyboardScrollableState extends State<KeyboardScrollable> {
           thumbVisibility: true,
           interactive: true,
           trackVisibility: true,
-          thickness: 14,
+          thickness: 12,
           radius: const Radius.circular(8),
           scrollbarOrientation: ScrollbarOrientation.right,
           child: PrimaryScrollController(

@@ -1,8 +1,11 @@
 name: puvi
-description: "A new Flutter project."
+description: >
+  Puvi Pure is an eCommerce app that brings the purity of nature to your
+  doorstep. From cold-pressed oils and handcrafted soaps to raw honey and
+  herbal essentials — every product is made with love, free from harmful
+  chemicals, and ethically sourced.
 
-# Prevent accidental publishing to pub.dev.
-publish_to: 'none'
+publish_to: "none"
 
 version: 2.0.0+1
 
@@ -10,31 +13,54 @@ environment:
   sdk: ^3.6.2
 
 dependencies:
-  cached_network_image: ^3.4.1
-  collection: ^1.19.1
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  cached_network_image: ^3.4.1
+  collection: ^1.19.1
   go_router: ^16.0.0
   google_fonts: ^6.2.1
   http: ^1.4.0
   provider: ^6.1.5
   shimmer: ^3.0.0
   url_strategy: ^0.3.0
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  image_path_android: "assets/icons/appicon.png"
+  image_path_ios: "assets/icons/appicon.png"
+  android: true
+  ios: true
+  adaptive_icon_background: "assets/icons/appicon.png"
+  adaptive_icon_foreground: "assets/icons/appicon.png"
+  adaptive_icon_foreground_inset: 16
+  adaptive_icon_monochrome: "assets/icons/appicon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  background_color_ios: "#ffffff"
+  web:
+    generate: true
+    image_path: "assets/icons/appicon.png"
+    background_color: "#ffffff"
+    theme_color: "#ffffff"
+  windows:
+    generate: false
+    image_path: "assets/icons/appicon.png"
+    icon_size: 48
+  macos:
+    generate: false
+    image_path: "assets/icons/appicon.png"
 
 flutter:
   uses-material-design: true
-
-  # Enable generation of localized Strings from arb files.
   generate: true
 
   assets:
-    # Add assets from the images directory to the application.
     - assets/images/
+    - assets/icons/
