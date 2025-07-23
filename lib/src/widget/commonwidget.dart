@@ -10,61 +10,52 @@ class CommonWidget {
     IconData? icon,
   }) {
     final overlay = Overlay.of(context);
-    final theme = Theme.of(context);
-
-    final overlayEntry = OverlayEntry(
-      builder: (context) {
-        final isSmallScreen = MediaQuery.of(context).size.width < 500;
-        Size size = MediaQuery.of(context).size;
-        return Positioned(
-          top: isSmallScreen ? 30 : 50,
-          left: size.width * 0.4,
-          right: size.width * 0.4,
-          child: Material(
-            color: Colors.transparent,
-            child: AnimatedOpacity(
-              opacity: 1.0,
-              duration: const Duration(milliseconds: 300),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: backgroundColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
+    final entry = OverlayEntry(
+      builder: (_) => Positioned(
+        top: MediaQuery.of(context).size.height * 0.05,
+        left: 20,
+        right: 20,
+        child: Material(
+          color: Colors.transparent,
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  )
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: 18, color: textColor),
+                    const SizedBox(width: 8),
                   ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (icon != null) Icon(icon, color: textColor, size: 20),
-                    if (icon != null) const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        message,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: textColor,
-                        ),
-                      ),
+                  Flexible(
+                    child: Text(
+                      message,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: textColor),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
 
-    overlay.insert(overlayEntry);
-
-    Future.delayed(duration, () {
-      overlayEntry.remove();
-    });
+    overlay.insert(entry);
+    Future.delayed(duration, () => entry.remove());
   }
 }
