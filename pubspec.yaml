@@ -25,6 +25,8 @@ dependencies:
   provider: ^6.1.5
   shimmer: ^3.0.0
   url_strategy: ^0.3.0
+  razorpay_web: ^3.0.0
+  fluttertoast: ^8.2.12
 
 dev_dependencies:
   flutter_test:

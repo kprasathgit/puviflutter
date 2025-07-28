@@ -17,5 +17,8 @@ class AppRouteConstants {
   static const String userDetails = '/user-details';
   static const String userDetailsName = 'userDetails';
 
+  static const String payment = '/payment';
+  static const String paymentName = 'Payment';
+
   static const String root = '/';
 }
