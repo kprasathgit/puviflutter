@@ -94,7 +94,7 @@ class MyAppRouter {
           builder: (context, state) =>
               OrderListScreen(), // <-- replace with your actual widget
         ),
-
+        GoRoute(path: '/404', builder: (context, state) => ErrorPage()),
         // GoRoute(
         //     path: '/delivery',
         //     name: 'delivery',

@@ -58,7 +58,7 @@ class AccountScreen extends StatelessWidget {
             leading: const Icon(Icons.shopping_bag),
             title: const Text("Your Orders"),
             onTap: () {
-              context.push('/orders');
+              context. push('/orders');
             },
           ),
           const Divider(),

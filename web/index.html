@@ -1,39 +1,56 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <!-- ✅ Basic Meta -->
+  <meta charset="UTF-8" />
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="PuviPure - 100% Pure and Natural Products like honey, cold-pressed oils, herbal powders, and wellness items." />
+  <meta name="keywords"
+    content="puvi, pure, puvipure, honey, cold pressed oils, natural products, organic, healthy living, herbal" />
+  <meta name="author" content="PuviPure" />
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="puvi">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <!-- ✅ iOS Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="PuviPure" />
+  <link rel="apple-touch-icon" href="icons/Icon-192.png" />
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <!-- ✅ Open Graph Tags for Social Sharing -->
+  <meta property="og:title" content="PuviPure - 100% Natural, Pure Products" />
+  <meta property="og:description"
+    content="Experience the purity of honey, cold-pressed oils, herbs, and more from PuviPure." />
+  <meta property="og:image" content="https://puvipure.com/assets/images/og-image.png" />
+  <meta property="og:url" content="https://puvipure.com" />
+  <meta property="og:type" content="website" />
 
-  <title>puvi</title>
-  <link rel="manifest" href="manifest.json">
+  <!-- ✅ Canonical & Favicon -->
+  <link rel="canonical" href="https://puvipure.com" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <!-- ✅ Manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <title>PuviPure - Natural, Pure Products for Healthy Life</title>
+
+  <!-- ✅ Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z00FGBXVP3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-Z00FGBXVP3');
+  </script>
+
 </head>
+
 <body>
   <script src="flutter_bootstrap.js" async></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
+
 </html>
