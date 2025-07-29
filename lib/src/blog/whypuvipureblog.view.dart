@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 class WhyPuviPureBlog extends StatelessWidget {
   const WhyPuviPureBlog({super.key});
 
@@ -10,7 +10,15 @@ class WhyPuviPureBlog extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Why PuviPure is Committed to 100% Natural Living'),
+
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            'Why PuviPure is Committed to 100% Natural Living',
+            style: const TextStyle(fontSize: 18), // smaller on mobile
+            textAlign: TextAlign.center,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
@@ -26,19 +34,19 @@ class WhyPuviPureBlog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Estimated read time: 3 min', style: TextStyle(color: Colors.grey)),
-            const SizedBox(height: 12),
+            // const SizedBox(height: 12),
 
-            // ✅ Placeholder image
-            Container(
-              width: double.infinity,
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              alignment: Alignment.center,
-              child: const Text('🖼 Blog Image (Coming Soon)', style: TextStyle(color: Colors.grey)),
-            ),
+            // // ✅ Placeholder image
+            // Container(
+            //   width: double.infinity,
+            //   height: 200,
+            //   decoration: BoxDecoration(
+            //     color: Colors.grey[300],
+            //     borderRadius: BorderRadius.circular(12),
+            //   ),
+            //   alignment: Alignment.center,
+            //   child: const Text('🖼 Blog Image (Coming Soon)', style: TextStyle(color: Colors.grey)),
+            // ),
 
             const SizedBox(height: 20),
 
@@ -83,9 +91,14 @@ class WhyPuviPureBlog extends StatelessWidget {
             ),
 
             const SizedBox(height: 20),
-            const Text(
-              '👉 Shop our wellness range now: https://puvipure.com',
-              style: TextStyle(color: Colors.blue),
+             InkWell(
+              onTap: () => launchUrl(Uri.parse('https://puvipure.com'),
+                  mode: LaunchMode.platformDefault),
+              child: const Text(
+                '👉 Shop our wellness range now: https://puvipure.com',
+                style: TextStyle(
+                    color: Colors.blue, decoration: TextDecoration.underline),
+              ),
             ),
           ],
         ),

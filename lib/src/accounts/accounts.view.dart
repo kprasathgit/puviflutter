@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:puvi/project/routes/app_route_constants.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -58,7 +59,7 @@ class AccountScreen extends StatelessWidget {
             leading: const Icon(Icons.shopping_bag),
             title: const Text("Your Orders"),
             onTap: () {
-              context. push('/orders');
+              context.push('/orders');
             },
           ),
           const Divider(),
@@ -77,6 +78,14 @@ class AccountScreen extends StatelessWidget {
             },
           ),
           const Divider(),
+          ListTile(
+            leading: const Icon(Icons.article),
+            title: const Text("Our Blog"),
+            onTap: () {
+              context.pop(); // close panel
+              context.go(AppRouteConstants.blogList); // navigate via GoRouter
+            },
+          ),
 
           ListTile(
             leading: const Icon(Icons.logout),

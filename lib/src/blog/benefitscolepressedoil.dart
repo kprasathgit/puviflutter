@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BenefitsColdPressedOilsBlog extends StatelessWidget {
   const BenefitsColdPressedOilsBlog({super.key});
@@ -10,7 +11,14 @@ class BenefitsColdPressedOilsBlog extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Health Benefits of Cold Pressed Oils'),
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            'Health Benefits of Cold Pressed Oils',
+            style: const TextStyle(fontSize: 18), // smaller on mobile
+            textAlign: TextAlign.center,
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
@@ -81,9 +89,14 @@ class BenefitsColdPressedOilsBlog extends StatelessWidget {
             ),
 
             const SizedBox(height: 20),
-            const Text(
-              '👉 Want to try some cold-pressed oils? Visit our products page: https://puvipure.com',
-              style: TextStyle(color: Colors.blue),
+            InkWell(
+              onTap: () => launchUrl(Uri.parse('https://puvipure.com'),
+                  mode: LaunchMode.platformDefault),
+              child: const Text(
+                '👉 Shop our wellness range now: https://puvipure.com',
+                style: TextStyle(
+                    color: Colors.blue, decoration: TextDecoration.underline),
+              ),
             ),
           ],
         ),
@@ -92,7 +105,8 @@ class BenefitsColdPressedOilsBlog extends StatelessWidget {
   }
 
   Widget _sectionTitle(String title) {
-    return Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold));
+    return Text(title,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold));
   }
 
   Widget _sectionBody(String text) {
