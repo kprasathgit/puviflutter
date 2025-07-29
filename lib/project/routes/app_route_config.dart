@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
 import 'package:puvi/src/accounts/accounts.view.dart';
+import 'package:puvi/src/blog/benefitscolepressedoil.dart';
+import 'package:puvi/src/blog/bloglist.view.dart';
+import 'package:puvi/src/blog/herbalpowderuses.dart';
+import 'package:puvi/src/blog/howwemake.dart';
+import 'package:puvi/src/blog/whypuvipureblog.view.dart';
 import 'package:puvi/src/cart/cart.view.dart';
 import 'package:puvi/src/homepage/hompage.view.dart';
-import 'package:puvi/src/models/product.dart';
 import 'package:puvi/src/orderdetails/orderdetails.view.dart';
 import 'package:puvi/src/orderlist/orderlist.view.dart';
 import 'package:puvi/src/payment/payment.view.dart';
@@ -46,7 +50,6 @@ class MyAppRouter {
             return MaterialPage(child: ProductDetailsScreen(slug: slug));
           },
         ),
-
         GoRoute(
           path: AppRouteConstants.userDetails,
           name: AppRouteConstants.userDetailsName,
@@ -63,7 +66,6 @@ class MyAppRouter {
           name: AppRouteConstants.settingsName,
           pageBuilder: (context, st) => MaterialPage(child: SettingsScreen()),
         ),
-
         GoRoute(
           path: '${AppRouteConstants.payment}/:secureKey',
           name: AppRouteConstants.paymentName,
@@ -72,12 +74,10 @@ class MyAppRouter {
             return MaterialPage(child: PaymentScreen(secureKey: secureKey));
           },
         ),
-
         GoRoute(
           path: '/success',
           builder: (_, __) => const SuccessScreen(),
         ),
-
         GoRoute(
           path: '/orders',
           builder: (_, __) => OrderListScreen(),
@@ -95,11 +95,37 @@ class MyAppRouter {
               OrderListScreen(), // <-- replace with your actual widget
         ),
         GoRoute(path: '/404', builder: (context, state) => ErrorPage()),
+        GoRoute(
+          path: AppRouteConstants.blogList,
+          builder: (context, state) => BlogListScreen(),
+        ),
         // GoRoute(
-        //     path: '/delivery',
-        //     name: 'delivery',
-        //     builder: (_, state) =>
-        //         DeliveryStatusScreen(orderId: state.extra as String)),
+        //   path: '/blog/:slug',
+        //   name: 'BlogDetail',
+        //   pageBuilder: (context, state) {
+        //     final slug = state.pathParameters['slug']!;
+        //     return MaterialPage(child: BlogDetailScreen(slug: slug));
+        //   },
+        // ),
+        GoRoute(
+          path: '/blog/why-puvipure',
+          builder: (_, __) => const WhyPuviPureBlog(),
+        ),
+
+        GoRoute(
+          path: '/blog/benefits-cold-pressed-oils',
+          builder: (_, __) => const BenefitsColdPressedOilsBlog(),
+        ),
+
+        GoRoute(
+          path: '/blog/herbal-powders-uses',
+          builder: (_, __) => const HerbalPowdersUsesBlog(),
+        ),
+
+        GoRoute(
+          path: '/blog/how-we-make',
+          builder: (_, __) => const HowWeMakeBlog(),
+        ),
       ],
       errorPageBuilder: (context, state) => MaterialPage(child: ErrorPage()),
     );

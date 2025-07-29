@@ -1,11 +1,11 @@
 {
-    "name": "puvi",
-    "short_name": "puvi",
+    "name": "PuviPure - 100% Natural Products",
+    "short_name": "PuviPure",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#ffffff",
-    "description": "A new Flutter project.",
+    "theme_color": "#4CAF50",
+    "description": "Buy 100% natural honey, oils, herbal powders & wellness items from PuviPure.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

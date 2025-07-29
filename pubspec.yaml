@@ -27,6 +27,7 @@ dependencies:
   url_strategy: ^0.3.0
   razorpay_web: ^3.0.0
   fluttertoast: ^8.2.12
+  share_plus: ^11.0.0
 
 dev_dependencies:
   flutter_test:

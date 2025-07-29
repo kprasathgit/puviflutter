@@ -20,5 +20,11 @@ class AppRouteConstants {
   static const String payment = '/payment';
   static const String paymentName = 'Payment';
 
+  static const String blogList = '/blog';
+  static const String blogListName = '/Blog';
+
+  static const String blogDetail = '/blog/:slug';
+  static const String blogDetailName = '/Blog/:slug';
+
   static const String root = '/';
 }
