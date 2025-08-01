@@ -1,19 +1,26 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:puvi/src/common/urls.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+
+import 'package:puvi/src/common/storageutil.dart';
+import 'package:puvi/src/common/urls.dart';
+import 'package:puvi/project/routes/app_route_constants.dart';
+import 'package:puvi/src/common/keyboardscrollable.dart';
 
 class OrderListScreen extends StatefulWidget {
+  const OrderListScreen({super.key});
+
   @override
-  _OrderListScreenState createState() => _OrderListScreenState();
+  State<OrderListScreen> createState() => _OrderListScreenState();
 }
 
 class _OrderListScreenState extends State<OrderListScreen> {
   List orders = [];
   bool loading = true;
+  String? error;
 
-  final String userId = '8489707130'; // or fetch dynamically from login/session
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -22,45 +29,91 @@ class _OrderListScreenState extends State<OrderListScreen> {
   }
 
   Future<void> fetchOrders() async {
-    try {
-      final response = await http.get(Uri.parse('${Urls.orderMappingUrl}/orders?userId=$userId'));
+    final username = StorageUtil.username;
 
-      if (response.statusCode == 200) {
+    if (username == null) {
+      context.go(AppRouteConstants.login);
+      return;
+    }
+
+    try {
+      final res = await http.get(
+        Uri.parse('${Urls.orderMappingUrl}/orders?userId=$username'),
+      );
+
+      if (res.statusCode == 200) {
         setState(() {
-          orders = jsonDecode(response.body);
+          orders = jsonDecode(res.body);
           loading = false;
         });
       } else {
-        throw Exception("Failed to fetch orders");
+        throw Exception('Failed to fetch orders');
       }
     } catch (e) {
       setState(() {
+        error = "Error fetching orders: $e";
         loading = false;
       });
-      print("Error fetching orders: $e");
     }
+  }
+
+  Widget _buildOrderTile(Map<String, dynamic> o) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      tileColor: Colors.grey[200],
+      title: Text(
+        "Order ID: ${o['orderId'] ?? '--'}",
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Amount: ₹${o['amount'] ?? '--'}"),
+          Text("Status: ${o['orderstatus'] ?? 'Pending'}"),
+        ],
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: () {
+        final secureKey = o['secureKey'];
+        if (secureKey != null) {
+          context.push('/order-detail/$secureKey');
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (loading) return Center(child: CircularProgressIndicator());
-    if (orders.isEmpty) return Center(child: Text('No Orders Found'));
-
     return Scaffold(
       appBar: AppBar(title: const Text("Your Orders")),
-      body: ListView.builder(
-        itemCount: orders.length,
-        itemBuilder: (_, i) {
-          final o = orders[i];
-          return ListTile(
-            title: Text("Order ID: ${o['orderId']}"),
-            subtitle: Text("₹${o['amount']}"),
-            trailing: Text(o['orderstatus'] ?? ''),
-            onTap: () {
-              context.push('/order-detail/${o['secureKey']}');
-            },
-          );
-        },
+      body: KeyboardScrollable(
+        controller: _scrollController,
+        child: Builder(
+          builder: (context) {
+            if (loading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (error != null) {
+              return Center(
+                child: Text(error!, style: const TextStyle(color: Colors.red)),
+              );
+            }
+
+            if (orders.isEmpty) {
+              return const Center(child: Text("No Orders Found"));
+            }
+
+            return ListView.separated(
+              controller: PrimaryScrollController.of(context),
+              padding: const EdgeInsets.all(16),
+              itemCount: orders.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (_, i) => _buildOrderTile(orders[i]),
+            );
+          },
+        ),
       ),
     );
   }

@@ -40,7 +40,7 @@ class ApiService {
         final map = json.decode(response.body) as Map<String, dynamic>;
         return ApiResult.fromMap(map, fromJson);
       } else {
-        return ApiResult(status: false, message: _parseErrorMessage(response));
+        return ApiResult(status: false, message: parseErrorMessage(response));
       }
     } catch (e) {
       return ApiResult(status: false, message: "GET Exception: $e");
@@ -64,7 +64,7 @@ class ApiService {
         final map = json.decode(response.body) as Map<String, dynamic>;
         return ApiResult.fromMap(map, fromJson);
       } else {
-        return ApiResult(status: false, message: _parseErrorMessage(response));
+        return ApiResult(status: false, message: parseErrorMessage(response));
       }
     } catch (e) {
       return ApiResult(status: false, message: "POST Exception: $e");
@@ -72,7 +72,7 @@ class ApiService {
   }
 
   /// Parses backend error messages (Spring Boot, etc.)
-  static String _parseErrorMessage(http.Response response) {
+  static String parseErrorMessage(http.Response response) {
     try {
       final errorJson = json.decode(response.body);
       if (errorJson is Map<String, dynamic>) {

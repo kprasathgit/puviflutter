@@ -26,5 +26,14 @@ class AppRouteConstants {
   static const String blogDetail = '/blog/:slug';
   static const String blogDetailName = '/Blog/:slug';
 
+  static const String login = '/login';
+  static const String loginName = '/Login';
+
+  static const String orderSummary = '/ordersummary';
+  static const String orderSummaryName = '/OrderSummary';
+
+  static const String forgotPassword = '/forgotpassword';
+  static const String forgotPasswordName = '/ForgotPassword';
+
   static const String root = '/';
 }

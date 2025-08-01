@@ -1,12 +1,18 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:puvi/project/routes/app_route_constants.dart';
 import 'package:puvi/src/cart/cart.controller.dart';
 import 'package:puvi/src/common/commonappbar.dart';
+import 'package:puvi/src/common/commonmethods.dart';
 import 'package:puvi/src/common/keyboardscrollable.dart';
+import 'package:puvi/src/common/storageutil.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/models/product.dart';
 import 'package:puvi/src/widget/commonwidget.dart';
+import 'dart:html' as html;
 
 class ProductDetailsScreen extends StatefulWidget {
   final String slug;
@@ -47,10 +53,27 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+// inside buyNow()
   void buyNow(Product product) {
+    final uid = StorageUtil.uid;
+    if (uid == null) {
+      final nextUrl = CommonMethods.buildRedirectUrl(
+          AppRouteConstants.orderSummary,
+          slug: product.slug);
+      final redirectUrl = CommonMethods.buildRedirectUrl(
+        AppRouteConstants.login,
+        next: nextUrl,
+        flow: 'checkout',
+        slug: product.slug,
+      );
+      context.go(redirectUrl);
+      return;
+    }
+
     cartController.clear();
     cartController.add(product, qty);
-    context.go('/user-details');
+    context.go(CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,
+        slug: product.slug));
   }
 
   @override

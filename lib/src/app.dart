@@ -7,6 +7,10 @@ import 'package:puvi/src/cart/cart.controller.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/homepage/homepage.service.dart';
 import 'package:puvi/src/homepage/hompage.view.dart';
+import 'package:puvi/src/ordersummary/ordersummary.controller.dart';
+import 'package:puvi/src/ordersummary/ordersummary.service.dart';
+import 'package:puvi/src/userdetails/userdetails.controller.dart';
+import 'package:puvi/src/userdetails/userdetails.service.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -24,6 +28,13 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => CartController(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => UserDetailsController(UserDetailsService()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => OrderSummaryController(
+              OrderSummaryService(), HomescreenService()),
         )
       ],
       child: MaterialApp.router(

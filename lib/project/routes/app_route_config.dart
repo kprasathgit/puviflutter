@@ -9,8 +9,10 @@ import 'package:puvi/src/blog/howwemake.dart';
 import 'package:puvi/src/blog/whypuvipureblog.view.dart';
 import 'package:puvi/src/cart/cart.view.dart';
 import 'package:puvi/src/homepage/hompage.view.dart';
+import 'package:puvi/src/login/login.view.dart';
 import 'package:puvi/src/orderdetails/orderdetails.view.dart';
 import 'package:puvi/src/orderlist/orderlist.view.dart';
+import 'package:puvi/src/ordersummary/ordersummary.view.dart';
 import 'package:puvi/src/payment/payment.view.dart';
 import 'package:puvi/src/productdetails/productdetails.view.dart';
 import 'package:puvi/src/settings/settings.view.dart';
@@ -52,9 +54,13 @@ class MyAppRouter {
         ),
         GoRoute(
           path: AppRouteConstants.userDetails,
-          name: AppRouteConstants.userDetailsName,
-          pageBuilder: (context, st) =>
-              MaterialPage(child: UserDetailsScreen()),
+          builder: (context, state) {
+            return UserDetailsScreen(
+              flow: state.uri.queryParameters['flow'],
+              slug: state.uri.queryParameters['slug'],
+              next: state.uri.queryParameters['next'], // 👈 include next
+            );
+          },
         ),
         GoRoute(
           path: AppRouteConstants.account,
@@ -72,6 +78,13 @@ class MyAppRouter {
           pageBuilder: (context, state) {
             final secureKey = state.pathParameters['secureKey']!;
             return MaterialPage(child: PaymentScreen(secureKey: secureKey));
+          },
+        ),
+        GoRoute(
+          path: AppRouteConstants.orderSummary,
+          builder: (context, state) {
+            final slug = state.uri.queryParameters['slug'];
+            return OrderSummaryScreen(slug: slug!);
           },
         ),
         GoRoute(
@@ -99,32 +112,29 @@ class MyAppRouter {
           path: AppRouteConstants.blogList,
           builder: (context, state) => BlogListScreen(),
         ),
-        // GoRoute(
-        //   path: '/blog/:slug',
-        //   name: 'BlogDetail',
-        //   pageBuilder: (context, state) {
-        //     final slug = state.pathParameters['slug']!;
-        //     return MaterialPage(child: BlogDetailScreen(slug: slug));
-        //   },
-        // ),
         GoRoute(
           path: '/blog/why-puvipure',
           builder: (_, __) => const WhyPuviPureBlog(),
         ),
-
         GoRoute(
           path: '/blog/benefits-cold-pressed-oils',
           builder: (_, __) => const BenefitsColdPressedOilsBlog(),
         ),
-
         GoRoute(
           path: '/blog/herbal-powders-uses',
           builder: (_, __) => const HerbalPowdersUsesBlog(),
         ),
-
         GoRoute(
           path: '/blog/how-we-make',
           builder: (_, __) => const HowWeMakeBlog(),
+        ),
+        GoRoute(
+          path: AppRouteConstants.login,
+          builder: (context, state) => LoginScreen(
+            flow: state.uri.queryParameters['flow'],
+            slug: state.uri.queryParameters['slug'],
+            next: state.uri.queryParameters['next'],
+          ),
         ),
       ],
       errorPageBuilder: (context, state) => MaterialPage(child: ErrorPage()),
