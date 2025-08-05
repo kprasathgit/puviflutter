@@ -84,7 +84,7 @@ class MyAppRouter {
           path: AppRouteConstants.orderSummary,
           builder: (context, state) {
             final slug = state.uri.queryParameters['slug'];
-            return OrderSummaryScreen(slug: slug!);
+            return OrderSummaryScreen(slug: slug);
           },
         ),
         GoRoute(

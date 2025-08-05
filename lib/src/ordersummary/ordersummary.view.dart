@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 import 'package:puvi/src/cart/cart.controller.dart';
+import 'package:puvi/src/common/buynowsession.dart';
 import 'package:puvi/src/common/commonmethods.dart';
 import 'package:puvi/src/common/keyboardscrollable.dart';
 import 'package:puvi/src/common/storageutil.dart';
@@ -35,7 +36,14 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     orderSummaryController =
         Provider.of<OrderSummaryController>(context, listen: false);
     if (widget.slug != null) {
-      fetchSingleProduct(widget.slug!);
+      if (BuyNowSession.isAvailable) {
+        setState(() {
+          singleProduct = BuyNowSession.product;
+          isLoading = false;
+        });
+      } else {
+        fetchSingleProduct(widget.slug!);
+      }
     } else {
       isLoading = false;
     }
@@ -103,6 +111,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             uid: uid,
             user: user,
             product: singleProduct!,
+            qty: BuyNowSession.qty,
+            amount: (singleProduct?.price ?? 0) * BuyNowSession.qty,
           );
 
     try {
@@ -132,7 +142,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     }
   }
 
-  Widget _buildItemTile(String name, int qty, double total, {String? imageUrl}) {
+  Widget _buildItemTile(String name, int qty, double total,
+      {String? imageUrl}) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 8),
       leading: ClipRRect(
@@ -165,8 +176,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     } else {
       return _buildItemTile(
         singleProduct?.proname ?? "--",
-        1,
-        singleProduct?.price?.toDouble() ?? 0,
+        BuyNowSession.qty,
+        (singleProduct?.price ?? 0) * BuyNowSession.qty,
         imageUrl: singleProduct?.imageurl,
       );
     }
@@ -177,7 +188,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
       final cartItems = context.read<CartController>().items;
       return cartItems.fold(0.0, (sum, item) => sum + item.total);
     } else {
-      return singleProduct?.price?.toDouble() ?? 0;
+      return (singleProduct?.price ?? 0) * BuyNowSession.qty;
     }
   }
 
@@ -256,7 +267,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         )
                       : const Icon(Icons.lock),
                   label: Text(
-                    isCreatingOrder ? 'Creating Order...' : 'Proceed to Payment',
+                    isCreatingOrder
+                        ? 'Creating Order...'
+                        : 'Proceed to Payment',
                   ),
                   onPressed: isCreatingOrder ? null : createOrder,
                   style: ElevatedButton.styleFrom(

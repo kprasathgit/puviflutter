@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
 import 'package:puvi/src/cart/cart.controller.dart';
+import 'package:puvi/src/common/buynowsession.dart';
 import 'package:puvi/src/common/commonappbar.dart';
 import 'package:puvi/src/common/commonmethods.dart';
 import 'package:puvi/src/common/keyboardscrollable.dart';
@@ -69,9 +70,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       context.go(redirectUrl);
       return;
     }
-
-    cartController.clear();
-    cartController.add(product, qty);
+    // cartController.clear();
+    // cartController.add(product, qty);
+    BuyNowSession.set(product: product, qty: qty);
     context.go(CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,
         slug: product.slug));
   }

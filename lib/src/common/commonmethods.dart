@@ -27,6 +27,8 @@ class CommonMethods {
     required String uid,
     required User user,
     required Product product,
+    required int qty,
+    required double amount,
   }) {
     return {
       'uid': uid,
@@ -34,9 +36,9 @@ class CommonMethods {
       'name': user.name,
       'phone': user.mobileno,
       'shippingAddress': user.address,
-      'amount': product.price,
+      'amount': amount,
       'listProCode': [product.procode],
-      'qtyList': [1],
+      'qtyList': [qty],
       'priceList': [product.price],
     };
   }

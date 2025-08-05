@@ -3,20 +3,21 @@ import 'package:go_router/go_router.dart';
 
 class SmartNavigator {
   static void go(BuildContext context, String route) {
-    // Handle only if mounted (optional, for safety)
-    if (!Navigator.of(context).mounted) return;
+    if (!context.mounted) return;
 
-    final canPop = Navigator.of(context).canPop();
+    final nav = Navigator.of(context);
 
-    if (canPop) {
-      Navigator.of(context).pop(); // Pop the dialog first
+    if (nav.canPop()) {
+      nav.pop();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) {
-          context.go(route); // Navigate after popping
+          Future.microtask(() => context.go(route));
         }
       });
     } else {
-      context.go(route);
+      Future.microtask(() {
+        if (context.mounted) context.go(route);
+      });
     }
   }
 }
