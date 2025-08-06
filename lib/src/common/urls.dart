@@ -4,7 +4,7 @@ class Urls {
 
   //Test
 
-  // static const serviceUrl = "http://localhost:8090";
+   //static const serviceUrl = "http://localhost:8090";
 
 //products Urlsஃ
   static const productMappingUrl = '$serviceUrl/products'; // controller mapping

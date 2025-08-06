@@ -7,6 +7,8 @@ import 'package:puvi/src/cart/cart.controller.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/homepage/homepage.service.dart';
 import 'package:puvi/src/homepage/hompage.view.dart';
+import 'package:puvi/src/login/login.controller.dart';
+import 'package:puvi/src/login/login.service.dart';
 import 'package:puvi/src/ordersummary/ordersummary.controller.dart';
 import 'package:puvi/src/ordersummary/ordersummary.service.dart';
 import 'package:puvi/src/userdetails/userdetails.controller.dart';
@@ -35,6 +37,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => OrderSummaryController(
               OrderSummaryService(), HomescreenService()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => LoginController(LoginService()),
         )
       ],
       child: MaterialApp.router(
