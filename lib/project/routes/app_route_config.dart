@@ -14,6 +14,7 @@ import 'package:puvi/src/orderdetails/orderdetails.view.dart';
 import 'package:puvi/src/orderlist/orderlist.view.dart';
 import 'package:puvi/src/ordersummary/ordersummary.view.dart';
 import 'package:puvi/src/payment/payment.view.dart';
+import 'package:puvi/src/payment/paymentresultscreen.dart';
 import 'package:puvi/src/productdetails/productdetails.view.dart';
 import 'package:puvi/src/settings/settings.view.dart';
 import 'package:puvi/src/userdetails/userdetails.view.dart';
@@ -92,7 +93,8 @@ class MyAppRouter {
           builder: (_, __) => const SuccessScreen(),
         ),
         GoRoute(
-          path: '/orders',
+          path: AppRouteConstants.orders,
+          name: AppRouteConstants.ordersName,
           builder: (_, __) => OrderListScreen(),
         ),
         GoRoute(
@@ -111,6 +113,19 @@ class MyAppRouter {
         GoRoute(
           path: AppRouteConstants.blogList,
           builder: (context, state) => BlogListScreen(),
+        ),
+        GoRoute(
+          path: AppRouteConstants.paymentstatus ,
+          name: AppRouteConstants.paymentStatusName ,
+          builder: (context, state) {
+            final secureKey = state.uri.queryParameters['secureKey'];
+            if (secureKey == null || secureKey.isEmpty) {
+              return const Scaffold(
+                body: Center(child: Text("Invalid secure key.")),
+              );
+            }
+            return PaymentStatusScreen(secureKey: secureKey);
+          },
         ),
         GoRoute(
           path: '/blog/why-puvipure',

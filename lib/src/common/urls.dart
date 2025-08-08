@@ -3,8 +3,7 @@ class Urls {
   static const serviceUrl = "https://service.clontalk.com";
 
   //Test
-
-   //static const serviceUrl = "http://localhost:8090";
+ //  static const serviceUrl = "http://localhost:8090";
 
 //products Urlsஃ
   static const productMappingUrl = '$serviceUrl/products'; // controller mapping
@@ -16,6 +15,8 @@ class Urls {
   static const orderMappingUrl = '$serviceUrl/order'; // controller mapping
   static const createOrder = '$orderMappingUrl/create';
   static const fetchOrder = '$orderMappingUrl/fetch';
+  static const paymentResponse = '$orderMappingUrl/paymentresponse';
+
 //User Urls
   static const userMappingUrl = '$serviceUrl/user'; // controller mapping
   static const saveUser = '$userMappingUrl/save';

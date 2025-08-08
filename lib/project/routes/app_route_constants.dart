@@ -35,5 +35,13 @@ class AppRouteConstants {
   static const String forgotPassword = '/forgotpassword';
   static const String forgotPasswordName = '/ForgotPassword';
 
+  static const String orders = '/orders';
+  static const String ordersName = '/Orders';
+
+static const String paymentstatus = '/paymentstatus';
+  static const String paymentStatusName = '/PaymentStatus';
+
+
+
   static const String root = '/';
 }

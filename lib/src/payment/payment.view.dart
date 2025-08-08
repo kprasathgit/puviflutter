@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -8,7 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:puvi/src/common/keyboardscrollable.dart';
 import 'package:puvi/src/common/urls.dart';
+import 'package:puvi/src/payment/openrazorpaydesktopredirect.dart';
 import 'package:razorpay_web/razorpay_web.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:universal_html/html.dart' as html;
 
 class PaymentScreen extends StatefulWidget {
   final String secureKey;
@@ -22,10 +24,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
   late Razorpay _razorpay;
   Map<String, dynamic>? orderData;
   bool loading = true;
-
+  final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
+    // ✅ Check if retry flag exists
+    if (kIsWeb && html.window.localStorage['paymentRetry'] == '1') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              "Last payment attempt failed. Please try again.",
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      });
+      html.window.localStorage.remove('paymentRetry'); // remove flag
+    }
     _razorpay = Razorpay();
     _razorpay.on(RazorpayEvents.EVENT_PAYMENT_SUCCESS, _onPaymentSuccess);
     _razorpay.on(RazorpayEvents.EVENT_PAYMENT_ERROR, _onPaymentError);
@@ -35,6 +53,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _razorpay.clear();
     super.dispose();
   }
@@ -70,7 +89,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'email': 'example@test.com',
       },
       'theme': {'color': '#00b894'},
-      'external': {'wallets': ['paytm']}
+      'external': {
+        'wallets': ['paytm']
+      }
     };
 
     try {
@@ -88,11 +109,53 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void _onPaymentError(PaymentFailureResponse response) {
-    log("❌ Payment failed: ${response.code} | ${response.message}");
-    Fluttertoast.showToast(
-      msg: "Payment failed. Please try again.",
-      backgroundColor: const Color(0xFFF44336),
+    // log("❌ Payment failed: ${response.code} | ${response.message}");
+
+    // Map Razorpay error codes to user-friendly messages
+    String errorMessage;
+    switch (response.code) {
+      case 0:
+        errorMessage = "Network error. Please check your internet.";
+        break;
+      case 1:
+        errorMessage = "Invalid payment details provided.";
+        break;
+      case 2:
+        errorMessage = "Payment cancelled by user.";
+        break;
+      case 4:
+        errorMessage = "Secure connection error. Please try again.";
+        break;
+      default:
+        errorMessage = "Payment failed. Please try again.";
+    }
+
+// Show error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:
+            Text(errorMessage, style: const TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 2),
+      ),
     );
+
+    if (response.code == 2) {
+      return;
+    }
+    // Close Razorpay popup if still open
+    try {
+      _razorpay.clear();
+    } catch (_) {}
+
+    // On web, reload after short delay so no other payment options remain
+    // ✅ Store retry flag before reload
+    if (kIsWeb) {
+      html.window.localStorage['paymentRetry'] = '1';
+      Future.delayed(const Duration(seconds: 1), () {
+        html.window.location.reload();
+      });
+    }
   }
 
   void _onExternalWallet(ExternalWalletResponse response) {
@@ -107,7 +170,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget _copyRow(String label, String value) {
     return Row(
       children: [
-        Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500))),
+        Expanded(
+            child: Text(value,
+                style: const TextStyle(fontWeight: FontWeight.w500))),
         IconButton(
           icon: const Icon(Icons.copy, size: 18),
           tooltip: "Copy $label",
@@ -135,12 +200,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
             if (orderData!['imageUrl'] != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(orderData!['imageUrl'], height: 180, fit: BoxFit.cover),
+                child: Image.network(orderData!['imageUrl'],
+                    height: 180, fit: BoxFit.cover),
               ),
             const SizedBox(height: 16),
-            Text("Hi ${orderData!['name']}", style: Theme.of(context).textTheme.titleLarge),
+            Text("Hi ${orderData!['name']}",
+                style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            _infoTile("Order ID", orderData!['razorpayOrderId'], copyable: true),
+            _infoTile("Order ID", orderData!['razorpayOrderId'],
+                copyable: true),
             _infoTile("Mobile", orderData!['mobileno']),
             _infoTile("Amount", "₹${orderData!['amount']}"),
             if (orderData!.containsKey('upiId'))
@@ -148,7 +216,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
             if (orderData!.containsKey('createdAt'))
               _infoTile("Created On", orderData!['createdAt']),
             if (orderData!.containsKey('status'))
-              _infoTile("Status", orderData!['status'].toString().toUpperCase()),
+              _infoTile(
+                  "Status", orderData!['status'].toString().toUpperCase()),
           ],
         ),
       ),
@@ -161,7 +230,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 100, child: Text("$title:", style: const TextStyle(fontWeight: FontWeight.w500))),
+          SizedBox(
+              width: 100,
+              child: Text("$title:",
+                  style: const TextStyle(fontWeight: FontWeight.w500))),
           Expanded(
             child: copyable ? _copyRow(title, value) : Text(value),
           ),
@@ -181,6 +253,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Complete Your Payment')),
       body: KeyboardScrollable(
+        controller: _scrollController,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -190,10 +263,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 icon: const Icon(Icons.payment),
                 label: const Text('Pay Now'),
                 style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                  backgroundColor: const Color.fromARGB(255, 40, 143, 45),
-                  foregroundColor: Colors.black
-                ),
+                    minimumSize: const Size.fromHeight(50),
+                    backgroundColor: const Color.fromARGB(255, 40, 143, 45),
+                    foregroundColor: Colors.black),
                 onPressed: _openCheckout,
               ),
             ],
