@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
       };
 
       User? user = await loginController.checkLogin(data);
-      print(user);
+    //  print(user);
       if (user == null) {
         setState(() => error = 'Login failed.');
         return;
