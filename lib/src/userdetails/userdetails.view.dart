@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
 import 'package:puvi/src/common/commonmethods.dart';
 import 'package:puvi/src/common/storageutil.dart';
+import 'package:puvi/src/firestore/firestore.controller.dart';
 import 'package:puvi/src/models/user.dart';
 import 'package:puvi/src/userdetails/userdetails.controller.dart';
 
@@ -30,12 +31,15 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
   bool loading = false;
   String? error;
+  late FirestoreController firestoreController;
 
   @override
   void initState() {
     super.initState();
     userDetailsController =
         Provider.of<UserDetailsController>(context, listen: false);
+    firestoreController =
+        Provider.of<FirestoreController>(context, listen: false);
   }
 
   @override
@@ -161,8 +165,9 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       }
 
       // Remove password before saving locally
-      
+
       await StorageUtil.saveUserLocally(user);
+      await firestoreController.signInFirebaseWithCustomToken(user.uid!);
 
       final redirectTo = widget.next ??
           (widget.flow == 'checkout' && widget.slug != null

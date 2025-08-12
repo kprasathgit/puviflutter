@@ -21,17 +21,27 @@ class KeyboardScrollable extends StatefulWidget {
 
 class _KeyboardScrollableState extends State<KeyboardScrollable> {
   late final ScrollController _scrollController;
+  late final bool _shouldDisposeController;
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _scrollController = widget.controller ?? ScrollController();
+    if (widget.controller == null) {
+      _scrollController = ScrollController();
+      _shouldDisposeController = true;
+    } else {
+      _scrollController = widget.controller!;
+      _shouldDisposeController = false;
+    }
   }
+
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    if (_shouldDisposeController) {
+      _scrollController.dispose();
+    }
     _focusNode.dispose();
     super.dispose();
   }
@@ -50,7 +60,7 @@ class _KeyboardScrollableState extends State<KeyboardScrollable> {
       void smoothScrollTo(double offset) {
         _scrollController.animateTo(
           offset.clamp(minScroll, maxScroll),
-          duration: const Duration(milliseconds: 30 ),
+          duration: const Duration(milliseconds: 30),
           curve: Curves.easeOutCubic,
         );
       }

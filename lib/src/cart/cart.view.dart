@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
 import 'package:puvi/src/cart/cart.controller.dart';
 import 'package:puvi/src/common/commonmethods.dart';
+import 'package:puvi/src/common/keyboardscrollable.dart';
 import 'package:puvi/src/common/smartnavigator.dart';
 import 'package:puvi/src/common/storageutil.dart';
 
@@ -16,11 +17,23 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   late CartController cartController;
+  ScrollController? _scrollController;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     cartController = Provider.of<CartController>(context, listen: false);
+  }
+
+  @override
+  void dispose() {
+    if (_scrollController != null) {
+      _scrollController!.dispose();
+      _scrollController = null;
+    }
+
+    super.dispose();
   }
 
   void _handleCheckout(BuildContext context) {
@@ -89,20 +102,24 @@ class _CartScreenState extends State<CartScreen> {
 
         return Scaffold(
           appBar: AppBar(title: const Text('Cart')),
-          body: ListView.builder(
-            itemCount: cart.length,
-            itemBuilder: (context, index) {
-              final item = cart[index];
-              return ListTile(
-                title: Text(item.product.proname),
-                subtitle: Text('Qty: ${item.qty}'),
-                trailing: Text('₹${item.total.toStringAsFixed(2)}'),
-                leading: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => cartController.remove(item.product),
-                ),
-              );
-            },
+          body: KeyboardScrollable(
+            controller: _scrollController,
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: cart.length,
+              itemBuilder: (context, index) {
+                final item = cart[index];
+                return ListTile(
+                  title: Text(item.product.proname),
+                  subtitle: Text('Qty: ${item.qty}'),
+                  trailing: Text('₹${item.total.toStringAsFixed(2)}'),
+                  leading: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => cartController.remove(item.product),
+                  ),
+                );
+              },
+            ),
           ),
           bottomNavigationBar: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

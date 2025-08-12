@@ -1,15 +1,13 @@
-import 'dart:convert';
-import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
 import 'package:puvi/src/common/commonappbar.dart';
 import 'package:puvi/src/common/commonmethods.dart';
+import 'package:puvi/src/common/constantvalues.dart';
 import 'package:puvi/src/common/smartnavigator.dart';
 import 'package:puvi/src/common/storageutil.dart';
-import 'package:puvi/src/common/urls.dart';
+import 'package:puvi/src/firestore/firestore.controller.dart';
 import 'package:puvi/src/login/login.controller.dart';
 import 'package:puvi/src/models/user.dart';
 
@@ -31,10 +29,12 @@ class _LoginScreenState extends State<LoginScreen> {
   bool loading = false;
   String? error;
   late LoginController loginController;
+  late FirestoreController firestoreController;
   @override
   void initState() {
     super.initState();
     loginController = Provider.of<LoginController>(context, listen: false);
+    firestoreController = Provider.of<FirestoreController>(context, listen: false);
   }
 
   Future<void> login() async {
@@ -53,11 +53,15 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       await StorageUtil.saveUserLocally(user);
+      await firestoreController.signInFirebaseWithCustomToken(user.uid!);
       final redirectTo = widget.next ??
-          (widget.flow == 'checkout' && widget.slug != null
+          (widget.flow == ConstantValues.orderSummaryCheckout
               ? CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,
                   slug: widget.slug)
-              : AppRouteConstants.homeScreen);
+              : (widget.flow == ConstantValues.productCheckout &&
+                      widget.slug != null)
+                  ? '${AppRouteConstants.productDetails}/${Uri.encodeComponent(widget.slug!)}'
+                  : AppRouteConstants.homeScreen);
       if (mounted) {
         SmartNavigator.go(context, redirectTo);
       }
@@ -98,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           size: 72, color: themeColor.withOpacity(0.9)),
                       const SizedBox(height: 16),
                       Text(
-                        'Welcome Back!',
+                        'Welcome!',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: themeColor,
                               fontWeight: FontWeight.bold,

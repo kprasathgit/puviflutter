@@ -8,6 +8,7 @@ import 'package:puvi/src/cart/cart.controller.dart';
 import 'package:puvi/src/common/buynowsession.dart';
 import 'package:puvi/src/common/commonappbar.dart';
 import 'package:puvi/src/common/commonmethods.dart';
+import 'package:puvi/src/common/constantvalues.dart';
 import 'package:puvi/src/common/keyboardscrollable.dart';
 import 'package:puvi/src/common/storageutil.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
@@ -28,6 +29,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   late Future<Product?> productFuture;
   final ScrollController scrollController = ScrollController();
   int qty = 1;
+  bool isLoadingAddToCart = false;
+  bool isLoadingBuyNow = false;
 
   @override
   void initState() {
@@ -44,37 +47,72 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     super.dispose();
   }
 
-  void addToCart(Product product) {
-    cartController.add(product, qty);
-    CommonWidget.showTopToast(
-      context,
-      message: '✔ Added to Cart',
-      icon: Icons.shopping_cart,
-      backgroundColor: const Color.fromARGB(255, 188, 204, 95),
-    );
+  Future<void> addToCart(Product product) async {
+    if (isLoadingAddToCart) return; // prevent double tap
+    setState(() {
+      isLoadingAddToCart = true;
+    });
+
+    try {
+      final uid = StorageUtil.uid;
+      if (uid == null) {
+        final nextUrl =
+            '${AppRouteConstants.productDetails}/${Uri.encodeComponent(product.slug)}';
+        final redirectUrl = CommonMethods.buildRedirectUrl(
+            AppRouteConstants.login,
+            next: nextUrl,
+            flow: ConstantValues.productCheckout,
+            slug: product.slug);
+        context.go(redirectUrl);
+        return;
+      }
+      await cartController.add(product, qty);
+      CommonWidget.showTopToast(
+        context,
+        message: '✔ Added to Cart',
+        icon: Icons.shopping_cart,
+        backgroundColor: const Color.fromARGB(255, 188, 204, 95),
+      );
+    } catch (e) {
+    } finally {
+      setState(() {
+        isLoadingAddToCart = false;
+      });
+    }
   }
 
 // inside buyNow()
-  void buyNow(Product product) {
-    final uid = StorageUtil.uid;
-    if (uid == null) {
-      final nextUrl = CommonMethods.buildRedirectUrl(
-          AppRouteConstants.orderSummary,
-          slug: product.slug);
-      final redirectUrl = CommonMethods.buildRedirectUrl(
-        AppRouteConstants.login,
-        next: nextUrl,
-        flow: 'checkout',
-        slug: product.slug,
-      );
-      context.go(redirectUrl);
-      return;
+  Future<void> buyNow(Product product) async {
+    if (isLoadingBuyNow) return;
+    setState(() {
+      isLoadingBuyNow = true;
+    });
+    try {
+      final uid = StorageUtil.uid;
+      if (uid == null) {
+        final nextUrl = CommonMethods.buildRedirectUrl(
+            AppRouteConstants.orderSummary,
+            slug: product.slug);
+        final redirectUrl = CommonMethods.buildRedirectUrl(
+          AppRouteConstants.login,
+          next: nextUrl,
+          flow: ConstantValues.orderSummaryCheckout,
+          slug: product.slug,
+        );
+        context.go(redirectUrl);
+        return;
+      }
+      // cartController.clear();
+      // cartController.add(product, qty);
+      BuyNowSession.set(product: product, qty: qty);
+      context.go(CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,
+          slug: product.slug));
+    } catch (e) {
+    } finally {
+      setState(() {
+        isLoadingBuyNow = false;
+      });
     }
-    // cartController.clear();
-    // cartController.add(product, qty);
-    BuyNowSession.set(product: product, qty: qty);
-    context.go(CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,
-        slug: product.slug));
   }
 
   @override
@@ -213,16 +251,40 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           Row(
             children: [
               Expanded(
-                child: _actionButton("Add to Cart",
-                    onTap: () => addToCart(product),
-                    color: const Color(0xFFFFD600)),
+                child: _actionButton(
+                  isLoadingAddToCart ? "" : "Add to Cart",
+                  onTap: () => isLoadingAddToCart ? null : addToCart(product),
+                  color: const Color(0xFFFFD600),
+                  childWidget: isLoadingAddToCart
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation(Colors.black),
+                          ),
+                        )
+                      : null,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _actionButton("Buy Now",
-                    onTap: () => buyNow(product),
-                    color: const Color(0xFF3B1E8F),
-                    textColor: Colors.white),
+                child: _actionButton(
+                  isLoadingBuyNow ? "" : "Buy Now",
+                  onTap: () => isLoadingBuyNow ? null : buyNow(product),
+                  color: const Color(0xFF3B1E8F),
+                  textColor: Colors.white,
+                  childWidget: isLoadingBuyNow
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation(Colors.white),
+                          ),
+                        )
+                      : null,
+                ),
               ),
             ],
           ),
@@ -305,7 +367,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Widget _actionButton(String text,
       {required VoidCallback onTap,
       required Color color,
-      Color textColor = Colors.black}) {
+      Color textColor = Colors.black,
+      Widget? childWidget}) {
     return ElevatedButton(
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
@@ -317,7 +380,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),
-      child: Text(text),
+      child: childWidget ?? Text(text),
     );
   }
 }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:puvi/project/routes/app_route_config.dart';
 import 'package:puvi/src/cart/cart.controller.dart';
+import 'package:puvi/src/firestore/firestore.controller.dart';
+import 'package:puvi/src/firestore/firestore.service.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/homepage/homepage.service.dart';
-import 'package:puvi/src/homepage/hompage.view.dart';
 import 'package:puvi/src/login/login.controller.dart';
 import 'package:puvi/src/login/login.service.dart';
 import 'package:puvi/src/ordersummary/ordersummary.controller.dart';
@@ -40,6 +40,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => LoginController(LoginService()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FirestoreController(FirestoreService()),
         )
       ],
       child: MaterialApp.router(

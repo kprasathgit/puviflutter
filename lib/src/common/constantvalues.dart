@@ -5,4 +5,9 @@ class ConstantValues {
 
   static const String commonErrorMsg = "Unexpected Error";
   static const String commonServerProbMsg = "Server Problem.Try later.";
+
+// Url Path and Query Parameters constant values.
+
+  static const String orderSummaryCheckout = "ordercheckout";
+  static const String productCheckout = "productcheckout";
 }

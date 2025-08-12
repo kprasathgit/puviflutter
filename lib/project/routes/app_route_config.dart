@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
@@ -20,6 +21,7 @@ import 'package:puvi/src/settings/settings.view.dart';
 import 'package:puvi/src/userdetails/userdetails.view.dart';
 import 'package:puvi/src/widget/errorpage.view.dart';
 import 'package:puvi/src/widget/successscreen.dart';
+import 'package:universal_html/html.dart' as html;
 
 class MyAppRouter {
   late GoRouter router;
@@ -30,14 +32,50 @@ class MyAppRouter {
         if (state.matchedLocation == AppRouteConstants.root) {
           return AppRouteConstants.homeScreen;
         }
+        // Handle Razorpay payment retry redirect on web
+        if (kIsWeb) {
+          final ls = html.window.localStorage;
+          final paymentRetry = ls['paymentRetry'];
+          if (paymentRetry == '1') {
+            // Read retry data
+            final retryFlow = ls['retryFlow'] ?? '';
+            final retrySlug = ls['retrySlug'];
+
+            // Clear retry flags to avoid loops
+            ls.remove('paymentRetry');
+            ls.remove('retryFlow');
+            ls.remove('retrySlug');
+
+            // Build query params
+            final queryParams = <String, String>{'retry': '1'};
+            if (retryFlow.isNotEmpty) {
+              queryParams['retryFlow'] = retryFlow;
+            }
+            if (retryFlow == 'buyNow' &&
+                retrySlug != null &&
+                retrySlug.isNotEmpty) {
+              queryParams['slug'] = retrySlug;
+            }
+
+            final queryString = Uri(queryParameters: queryParams).query;
+            final redirectPath =
+                '${AppRouteConstants.orderSummary}?$queryString';
+
+            // Return redirect path so GoRouter will navigate here
+            return redirectPath;
+          }
+        }
         return null;
       },
       routes: [
         GoRoute(
-          path: AppRouteConstants.homeScreen,
-          name: AppRouteConstants.homeScreenName,
-          pageBuilder: (context, state) => MaterialPage(child: HomeScreen()),
-        ),
+            path: AppRouteConstants.homeScreen,
+            name: AppRouteConstants.homeScreenName,
+            pageBuilder: (context, state) {
+              final disableBack =
+                  state.uri.queryParameters['disableBack'] == '1';
+              return MaterialPage(child: HomeScreen(disableBack: disableBack));
+            }),
         GoRoute(
           path: AppRouteConstants.cart,
           name: AppRouteConstants.cartName,
@@ -47,8 +85,6 @@ class MyAppRouter {
           path: '${AppRouteConstants.productDetails}/:slug',
           name: AppRouteConstants.productDetailsName,
           pageBuilder: (context, state) {
-            //  final procode = state.pathParameters['procode']!;
-            // Uri.decodeComponent() reverses the encoding so you get the original procode back, even if it had /, spaces, etc.
             final slug = Uri.decodeComponent(state.pathParameters['slug']!);
             return MaterialPage(child: ProductDetailsScreen(slug: slug));
           },
@@ -59,7 +95,7 @@ class MyAppRouter {
             return UserDetailsScreen(
               flow: state.uri.queryParameters['flow'],
               slug: state.uri.queryParameters['slug'],
-              next: state.uri.queryParameters['next'], // 👈 include next
+              next: state.uri.queryParameters['next'],
             );
           },
         ),
@@ -78,14 +114,33 @@ class MyAppRouter {
           name: AppRouteConstants.paymentName,
           pageBuilder: (context, state) {
             final secureKey = state.pathParameters['secureKey']!;
-            return MaterialPage(child: PaymentScreen(secureKey: secureKey));
+            // ⬇ Preserve flow + slug for retry tracking
+            final flow = state.uri.queryParameters['flow'];
+            final slug = state.uri.queryParameters['slug'];
+            if (flow != null) {
+              html.window.localStorage['retryFlow'] = flow;
+            }
+            if (slug != null) {
+              html.window.localStorage['retrySlug'] = slug;
+            }
+            return MaterialPage(
+              child: PaymentScreen(secureKey: secureKey),
+            );
           },
         ),
         GoRoute(
           path: AppRouteConstants.orderSummary,
           builder: (context, state) {
             final slug = state.uri.queryParameters['slug'];
-            return OrderSummaryScreen(slug: slug);
+            final retryFlow = state.uri.queryParameters['retryFlow'];
+            final autoRetry = (state.uri.queryParameters['retry'] == '1') ||
+                (state.uri.queryParameters['autoRetry'] == '1');
+
+            return OrderSummaryScreen(
+              slug: slug,
+              retryFlow: retryFlow,
+              autoRetry: autoRetry,
+            );
           },
         ),
         GoRoute(
@@ -106,8 +161,7 @@ class MyAppRouter {
         ),
         GoRoute(
           path: '/orders',
-          builder: (context, state) =>
-              OrderListScreen(), // <-- replace with your actual widget
+          builder: (context, state) => OrderListScreen(),
         ),
         GoRoute(path: '/404', builder: (context, state) => ErrorPage()),
         GoRoute(
@@ -115,8 +169,8 @@ class MyAppRouter {
           builder: (context, state) => BlogListScreen(),
         ),
         GoRoute(
-          path: AppRouteConstants.paymentstatus ,
-          name: AppRouteConstants.paymentStatusName ,
+          path: AppRouteConstants.paymentstatus,
+          name: AppRouteConstants.paymentStatusName,
           builder: (context, state) {
             final secureKey = state.uri.queryParameters['secureKey'];
             if (secureKey == null || secureKey.isEmpty) {
@@ -145,11 +199,21 @@ class MyAppRouter {
         ),
         GoRoute(
           path: AppRouteConstants.login,
-          builder: (context, state) => LoginScreen(
-            flow: state.uri.queryParameters['flow'],
-            slug: state.uri.queryParameters['slug'],
-            next: state.uri.queryParameters['next'],
-          ),
+          builder: (context, state) {
+            final flow = state.uri.queryParameters['flow'];
+            final slug = state.uri.queryParameters['slug'];
+            final next = state.uri.queryParameters['next'];
+
+            // ✅ Preserve retry flags when redirecting to login
+            if (html.window.localStorage.containsKey('retryFlow')) {
+              return LoginScreen(
+                flow: html.window.localStorage['retryFlow'],
+                slug: html.window.localStorage['retrySlug'],
+                next: next,
+              );
+            }
+            return LoginScreen(flow: flow, slug: slug, next: next);
+          },
         ),
       ],
       errorPageBuilder: (context, state) => MaterialPage(child: ErrorPage()),
