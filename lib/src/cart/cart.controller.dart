@@ -20,10 +20,22 @@ class CartController extends ChangeNotifier {
   bool? isMobileVerified;
 
   CartController() {
+    StorageUtil.notifier
+        .addListener(_onUidChanged); // 👈 listen for UID changes
     if (uid != null) {
       _init();
     }
   }
+
+  void _onUidChanged() {
+    if (uid != null) {
+      _init();
+    } else {
+      items.clear();
+      notifyListeners();
+    }
+  }
+
   Future<void> _init() async {
     isMobileVerified = await cartService.isUserMobileVerified(uid!);
     _startListening();

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +12,6 @@ import 'package:puvi/src/common/storageutil.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/models/product.dart';
 import 'package:puvi/src/widget/commonwidget.dart';
-import 'dart:html' as html;
 
 class ProductDetailsScreen extends StatefulWidget {
   final String slug;
