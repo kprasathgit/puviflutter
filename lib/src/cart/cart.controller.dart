@@ -54,9 +54,10 @@ class CartController extends ChangeNotifier {
   }
 
   Future<void> add(Product product, int qty) async {
-    if (uid == null || _isProcessing) return;
-    if (isMobileVerified != true) throw Exception("User's mobile not verified");
+    // if (uid == null || _isProcessing) return;
+    // if (isMobileVerified != true) throw Exception("User's mobile not verified");
 
+    if (_isProcessing) return;
     _isProcessing = true;
 
     final index =
@@ -67,22 +68,25 @@ class CartController extends ChangeNotifier {
       items.add(CartItem(product, qty));
     }
     notifyListeners();
-
+    if (uid == null) return;
     try {
-      await cartService.addToCart(uid!, product, qty);
+      cartService.addToCart(uid!, product, qty);
     } finally {
       _isProcessing = false;
     }
   }
 
   Future<void> remove(Product product) async {
-    if (uid == null || _isProcessing) return;
-    if (isMobileVerified != true) throw Exception("User's mobile not verified");
+    // if (uid == null || _isProcessing) return;
+    // if (isMobileVerified != true) throw Exception("User's mobile not verified");
+
+    if (_isProcessing) return;
+    _isProcessing = true;
 
     _isProcessing = true;
     items.removeWhere((item) => item.product.procode == product.procode);
     notifyListeners();
-
+    if (uid == null) return;
     try {
       await cartService.removeFromCart(uid!, product.procode);
     } finally {
@@ -91,13 +95,16 @@ class CartController extends ChangeNotifier {
   }
 
   Future<void> clear() async {
-    if (uid == null) return;
-    if (isMobileVerified != true) throw Exception("User's mobile not verified");
+    // if (uid == null || _isProcessing) return;
+    // if (isMobileVerified != true) throw Exception("User's mobile not verified");
+
+    if (_isProcessing) return;
+    _isProcessing = true;
 
     final copyItems = List<CartItem>.from(items);
     items.clear();
     notifyListeners();
-
+    if (uid == null) return;
     for (final item in copyItems) {
       await remove(item.product);
     }
