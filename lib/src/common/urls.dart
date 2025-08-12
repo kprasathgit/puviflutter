@@ -27,5 +27,5 @@ class Urls {
   static const authRegister = '$authMappingUrl/register';
   static const authLogin = '$authMappingUrl/login';
   static const authRefresh = '$authMappingUrl/refresh';
-  static const getFirebaseToken = '$authMappingUrl/getFirebaseToken';
+  static const getFirebaseToken = '$authMappingUrl/getfirebasetoken';
 }
