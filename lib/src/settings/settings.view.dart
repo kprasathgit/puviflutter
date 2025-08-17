@@ -31,7 +31,7 @@ class SettingsScreen extends StatelessWidget {
             leading: const Icon(Icons.language),
             title: const Text("Language"),
             onTap: () {
-              // TODO: Add language selection
+              
             },
           ),
           ListTile(
