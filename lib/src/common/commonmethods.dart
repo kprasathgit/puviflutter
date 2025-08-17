@@ -98,15 +98,16 @@ class CommonMethods {
     );
   }
 
-  static Future<void> showSessionExpiredDialog(BuildContext context) async {
+  static Future<void> showSessionExpiredDialog(BuildContext context,
+      {String? title, String? content, onpressed}) async {
     // Show modal dialog, no dismiss except button
     await showDialog(
       context: context,
       barrierDismissible: false, // user can't tap outside to dismiss
       builder: (context) {
         return AlertDialog(
-          title: const Text("Session Expired"),
-          content: const Text(
+          title: Text(title ?? "Session Expired"),
+          content: Text(content ??
               "Your session has expired due to inactivity. Please start again."),
           actions: [
             TextButton(

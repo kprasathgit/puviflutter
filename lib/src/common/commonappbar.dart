@@ -50,13 +50,13 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
               builder: (_) => const RightPanel(child: AccountScreen()),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => showDialog(
-              context: context,
-              builder: (_) => const RightPanel(child: SettingsScreen()),
-            ),
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.settings),
+          //   onPressed: () => showDialog(
+          //     context: context,
+          //     builder: (_) => const RightPanel(child: SettingsScreen()),
+          //   ),
+          // ),
           Consumer<CartController>(
             builder: (context, cartController, _) {
               final cartCount = cartController.items.fold<int>(

@@ -61,7 +61,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             backgroundColor: Colors.red,
             duration: Duration(seconds: 5),
           ),
-        );
+        );  
       });
       html.window.localStorage.remove('paymentRetry');
     }
