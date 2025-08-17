@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:puvi/src/accounts/accounts.view.dart';
 import 'package:puvi/src/cart/cart.controller.dart';
 import 'package:puvi/src/cart/cart.view.dart';
-import 'package:puvi/src/settings/settings.view.dart';
+import 'package:puvi/src/common/themeprovider.dart';
 import 'package:puvi/src/widget/rightpanel.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -13,6 +13,8 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -41,22 +43,64 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
           style: const TextStyle(color: Colors.black),
         ),
         centerTitle: true,
-       // leading: BackButton(),
         actions: [
+          // 🔹 Theme Dropdown Icon
+          PopupMenuButton<ThemeMode>(
+            icon: const Icon(Icons.brightness_6),
+            tooltip: "Change Theme",
+            onSelected: (mode) => themeProvider.setTheme(mode),
+            itemBuilder: (context) => const [
+              PopupMenuItem(
+                value: ThemeMode.light,
+                child: ListTile(
+                  leading: Icon(Icons.light_mode),
+                  title: Text("Light"),
+                ),
+              ),
+              PopupMenuItem(
+                value: ThemeMode.dark,
+                child: ListTile(
+                  leading: Icon(Icons.dark_mode),
+                  title: Text("Dark"),
+                ),
+              ),
+              PopupMenuItem(
+                value: ThemeMode.system,
+                child: ListTile(
+                  leading: Icon(Icons.settings_suggest),
+                  title: Text("System Default"),
+                ),
+              ),
+            ],
+          ),
+
+          // 🔹 Person/Profile Icon
           IconButton(
             icon: const Icon(Icons.person),
-            onPressed: () => showDialog(
-              context: context,
-              builder: (_) => const RightPanel(child: AccountScreen()),
-            ),
+            tooltip: "Your Account",
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) =>
+                    const RightPanel(child: AccountScreen()),
+              );
+            },
           ),
+
+          // 🔹 Settings Icon
           // IconButton(
           //   icon: const Icon(Icons.settings),
-          //   onPressed: () => showDialog(
-          //     context: context,
-          //     builder: (_) => const RightPanel(child: SettingsScreen()),
-          //   ),
+          //   tooltip: "Settings",
+          //   onPressed: () {
+          //     showDialog(
+          //       context: context,
+          //       builder: (_) =>
+          //           const RightPanel(child: SettingsScreen()),
+          //     );
+          //   },
           // ),
+
+          // 🔹 Cart Icon
           Consumer<CartController>(
             builder: (context, cartController, _) {
               final cartCount = cartController.items.fold<int>(
