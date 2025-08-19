@@ -1,12 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:puvi/main.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
+import 'package:puvi/src/common/apiservice.dart';
 import 'package:puvi/src/common/commonappbar.dart';
 import 'package:puvi/src/common/commonmethods.dart';
 import 'package:puvi/src/common/constantvalues.dart';
 import 'package:puvi/src/common/smartnavigator.dart';
 import 'package:puvi/src/common/storageutil.dart';
+import 'package:puvi/src/firebase/firebase.service.dart';
 import 'package:puvi/src/firestore/firestore.controller.dart';
 import 'package:puvi/src/login/login.controller.dart';
 import 'package:puvi/src/models/user.dart';
@@ -34,7 +39,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     loginController = Provider.of<LoginController>(context, listen: false);
-    firestoreController = Provider.of<FirestoreController>(context, listen: false);
+    firestoreController =
+        Provider.of<FirestoreController>(context, listen: false);
   }
 
   Future<void> login() async {
@@ -46,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
       };
 
       User? user = await loginController.checkLogin(data);
-    //  print(user);
+      //  print(user);
       if (user == null) {
         setState(() => error = 'Login failed.');
         return;
@@ -54,6 +60,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
       await StorageUtil.saveUserLocally(user);
       await firestoreController.signInFirebaseWithCustomToken(user.uid!);
+      final currentToken = FirebaseService.token;
+      if (currentToken != null && currentToken != user.fcmtoken) {
+        await loginController.updateFcmToken(user.uid!, currentToken);
+      }
+      if (StorageUtil.uid != null) {
+        // unawaited(notificationController
+        //     .fetchFromNotificationServer(StorageUtil.uid!));
+         await notificationController
+            .fetchFromNotificationServer(StorageUtil.uid!);
+      }
       final redirectTo = widget.next ??
           (widget.flow == ConstantValues.orderSummaryCheckout
               ? CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,

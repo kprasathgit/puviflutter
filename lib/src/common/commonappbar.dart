@@ -4,6 +4,8 @@ import 'package:puvi/src/accounts/accounts.view.dart';
 import 'package:puvi/src/cart/cart.controller.dart';
 import 'package:puvi/src/cart/cart.view.dart';
 import 'package:puvi/src/common/themeprovider.dart';
+import 'package:puvi/src/notification/notification.controller.dart';
+import 'package:puvi/src/notification/notification.view.dart';
 import 'package:puvi/src/widget/rightpanel.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -81,8 +83,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (_) =>
-                    const RightPanel(child: AccountScreen()),
+                builder: (_) => const RightPanel(child: AccountScreen()),
               );
             },
           ),
@@ -137,6 +138,46 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
               );
             },
           ),
+
+          // Add in actions:
+          Consumer<NotificationController>(
+            builder: (context, notifController, _) {
+              final unread = notifController.unreadCount;
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => NotificationPanel(
+                          onClose: () => Navigator.of(context).pop(),
+                        ),
+                      );
+                    },
+                  ),
+                  if (unread > 0)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: CircleAvatar(
+                        radius: 9,
+                        backgroundColor: Colors.red,
+                        child: Text(
+                          '$unread',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        
         ],
       ),
     );

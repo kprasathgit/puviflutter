@@ -3,7 +3,7 @@ class Urls {
   static const serviceUrl = "https://service.clontalk.com";
 
   //Test
- // static const serviceUrl = "http://localhost:8090";
+ //  static const serviceUrl = "http://localhost:8090";
 
 //products Urlsஃ
   static const productMappingUrl = '$serviceUrl/products'; // controller mapping
@@ -28,4 +28,12 @@ class Urls {
   static const authLogin = '$authMappingUrl/login';
   static const authRefresh = '$authMappingUrl/refresh';
   static const getFirebaseToken = '$authMappingUrl/getfirebasetoken';
+
+//Notification Urls
+  static const notificationMappingUrl = '$serviceUrl/notifications';
+  static const sendUserNotification =
+      '$notificationMappingUrl/sendusernotification';
+  static const updateFcmToken = '$notificationMappingUrl/updatefcmtoken';
+static const fetchUsernotifications = '$notificationMappingUrl/fetchusernotification';
+  
 }

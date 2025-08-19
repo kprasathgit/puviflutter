@@ -25,4 +25,26 @@ class LoginService {
       return null;
     }
   }
+
+  Future<User?> updateFcmToken(String uid, String fcmToken) async {
+    try {
+      final body = {'uid': uid, 'fcmtoken': fcmToken};
+
+      final result = await ApiService.post<User>(
+        url: Urls.updateFcmToken,
+        body: body,
+        fromJson: (json) => User.fromMap(json),
+      );
+      return result.status
+          ? result.returnObject
+          : !result.status
+              ? throw CustomException(
+                  result.message ?? ConstantValues.commonErrorMsg)
+              : null;
+    } on CustomException {
+      print("FCMtoken updation failed!");
+    } catch (e) {
+      print(e);
+    }
+  }
 }

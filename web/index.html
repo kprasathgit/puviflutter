@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
   <base href="$FLUTTER_BASE_HREF">
 
@@ -35,7 +34,7 @@
   <!-- ✅ Manifest -->
   <link rel="manifest" href="manifest.json" />
 
-  <!-- Add Toastify for fluttertoast on web -->
+  <!-- ✅ Toastify for fluttertoast on web -->
   <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
 
@@ -45,12 +44,12 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z00FGBXVP3"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
+    function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-Z00FGBXVP3');
   </script>
 
-  <!-- ✅ Structured Data for Google Rich Results -->
+  <!-- ✅ Structured Data for SEO -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -64,12 +63,26 @@
       ]
     }
   </script>
-
 </head>
-
 <body>
+  <!-- Flutter Web entry -->
   <script src="flutter_bootstrap.js" async></script>
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-</body>
 
+  <!-- Razorpay -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- ✅ Register Firebase SW -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/firebase-messaging-sw.js")
+        .then((registration) => {
+          console.log("Firebase Service Worker registered:", registration);
+        })
+        .catch((err) => {
+          console.error("Firebase Service Worker registration failed:", err);
+        });
+    }
+  </script>
+</body>
 </html>

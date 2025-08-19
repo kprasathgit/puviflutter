@@ -8,6 +8,10 @@ class LoginController with ChangeNotifier {
   LoginController(this.loginService);
 
   Future<User?> checkLogin(Map<String, String> data) async {
-   return await loginService.checkLogin(data);
+    return await loginService.checkLogin(data);
+  }
+
+  Future<User?> updateFcmToken(String uid, String fcmToken) async {
+    return await loginService.updateFcmToken(uid, fcmToken);
   }
 }

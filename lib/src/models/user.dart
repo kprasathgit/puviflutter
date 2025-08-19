@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:intl/intl.dart';
 import 'package:puvi/src/common/constantvalues.dart';
 
@@ -24,6 +25,7 @@ class User {
   DateTime? createddate;
   DateTime? createdtime;
   DateTime? updateddatetime;
+  String? fcmtoken; // <-- New field added
 
   User({
     this.id,
@@ -47,6 +49,7 @@ class User {
     this.createddate,
     this.createdtime,
     this.updateddatetime,
+    this.fcmtoken, // <-- New field in constructor
   });
 
   User copyWith({
@@ -71,6 +74,7 @@ class User {
     DateTime? createddate,
     DateTime? createdtime,
     DateTime? updateddatetime,
+    String? fcmtoken, // <-- New field
   }) {
     return User(
       id: id ?? this.id,
@@ -94,6 +98,7 @@ class User {
       createddate: createddate ?? this.createddate,
       createdtime: createdtime ?? this.createdtime,
       updateddatetime: updateddatetime ?? this.updateddatetime,
+      fcmtoken: fcmtoken ?? this.fcmtoken, // <-- copyWith
     );
   }
 
@@ -126,6 +131,7 @@ class User {
         'createdtime': createdtime!.millisecondsSinceEpoch,
       if (updateddatetime != null)
         'updateddatetime': updateddatetime!.millisecondsSinceEpoch,
+      if (fcmtoken != null) 'fcmtoken': fcmtoken, // <-- toMap
     };
   }
 
@@ -154,6 +160,7 @@ class User {
       createddate: getDateFromMap(map['createddate']),
       createdtime: getDateFromMap(map['createdtime']),
       updateddatetime: getDateFromMap(map['updateddatetime']),
+      fcmtoken: map['fcmtoken'], // <-- fromMap
     );
   }
 
@@ -211,6 +218,6 @@ class User {
 
   @override
   String toString() {
-    return 'User(id: $id, uid: $uid, name: $name, username: $username, password: $password, isemailverified: $isemailverified, ismobilenoverified: $ismobilenoverified, mobileno: $mobileno, address: $address, photourl: $photourl, oauth2provider: $oauth2provider, jwttoken: $jwttoken, refreshtoken: $refreshtoken, oauthcreationtime: $oauthcreationtime, oauthlastsignin: $oauthlastsignin, is2faEnabled: $is2faEnabled, twofactorauthtoken: $twofactorauthtoken, lastsignintimestamp: $lastsignintimestamp, createddate: $createddate, createdtime: $createdtime, updateddatetime: $updateddatetime)';
+    return 'User(id: $id, uid: $uid, name: $name, username: $username, password: $password, isemailverified: $isemailverified, ismobilenoverified: $ismobilenoverified, mobileno: $mobileno, address: $address, photourl: $photourl, oauth2provider: $oauth2provider, jwttoken: $jwttoken, refreshtoken: $refreshtoken, oauthcreationtime: $oauthcreationtime, oauthlastsignin: $oauthlastsignin, is2faEnabled: $is2faEnabled, twofactorauthtoken: $twofactorauthtoken, lastsignintimestamp: $lastsignintimestamp, createddate: $createddate, createdtime: $createdtime, updateddatetime: $updateddatetime, fcmtoken: $fcmtoken)';
   }
 }

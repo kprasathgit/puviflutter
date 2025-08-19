@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
 import 'package:puvi/src/common/commonmethods.dart';
 import 'package:puvi/src/common/storageutil.dart';
+import 'package:puvi/src/firebase/firebase.service.dart';
 import 'package:puvi/src/firestore/firestore.controller.dart';
 import 'package:puvi/src/models/user.dart';
 import 'package:puvi/src/userdetails/userdetails.controller.dart';
@@ -156,6 +157,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         'mobileno': phone.text.trim(),
         'password': password.text,
         'address': address.text.trim(),
+        'fcmtoken': FirebaseService.token??"",
       };
 
       User? user = await userDetailsController.registerUser(userDetails);

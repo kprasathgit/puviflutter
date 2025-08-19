@@ -1,50 +1,73 @@
 import 'dart:async';
-
-import 'package:firebase_auth_web/firebase_auth_web.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:puvi/firebase_options.dart';
+import 'package:puvi/src/app.dart';
+import 'package:puvi/src/common/storageutil.dart';
+import 'package:puvi/src/firebase/firebase.service.dart';
+import 'package:puvi/src/notification/notification.controller.dart';
+import 'package:puvi/src/notification/notification.service.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:url_strategy/url_strategy.dart';
 
-import 'src/app.dart';
+late NotificationController notificationController;
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
+  // ✅ Initialize Firebase + Notifications before runApp
+  await FirebaseService.init();
+  // ✅ Setup app-wide Notification Controller
+  notificationController = NotificationController(NotificationService());
+
+// ✅ Load cached notifications immediately (non-blocking UI)
+  unawaited(notificationController.loadFromCache());
+
+// ✅ Fetch fresh notifications in background
+  if (StorageUtil.uid != null) {
+    unawaited(
+        notificationController.fetchFromNotificationServer(StorageUtil.uid!));
+  }
+
+  // ✅ Web routing (remove # in URL)
   setPathUrlStrategy();
-  runApp(MyApp());
 
-  // Start update check after app is rendered
+  runApp(const MyApp());
+
+  // // ✅ Ask for notification permission AFTER home screen load
+  // WidgetsBinding.instance.addPostFrameCallback((_) {
+  //   _askNotificationPermission();
+  // });
+
+  // ✅ Check for service worker update
   checkForUpdate();
 }
 
-/// Checks for service worker updates and reloads the page if a new version is found.
+/// Request notification permission once home screen is ready
+// Future<void> _askNotificationPermission() async {
+//   if (html.Notification.supported) {
+//     final permission = await html.Notification.requestPermission();
+//     if (permission == "granted") {
+//       print("✅ Notifications allowed by user");
+//     } else {
+//       print("❌ Notifications denied by user");
+//     }
+//   }
+// }
+
+/// Checks service worker updates and reloads page if new version is installed
 void checkForUpdate() {
   final swContainer = html.window.navigator.serviceWorker;
   if (swContainer != null) {
     swContainer.getRegistration().then((reg) {
       if (reg != null) {
-        reg.update(); // Ask browser to check for new service worker
+        reg.update();
 
+        // Watch for state changes of the new worker
         final newWorker = reg.installing ?? reg.waiting;
         if (newWorker != null) {
-          // Polling method because dart:html lacks onStateChange
-          Timer.periodic(const Duration(seconds: 1), (timer) {
-            print("Checking service worker state: ${newWorker.state}");
-            if (newWorker.state == 'installed') {
-              timer.cancel();
-              print("New version detected. Reloading...");
-              html.window.location.reload(); // Force reload with updated files
-            }
-
-            // Safety timeout: stop polling after 10 seconds
-            if (timer.tick >= 10) {
-              timer.cancel();
-              print("Stopped polling after 10 seconds.");
+          newWorker.on['statechange'].listen((event) {
+            if (newWorker.state == 'activated') {
+              // ✅ reload only once after full activation
+              html.window.location.reload();
             }
           });
         }
