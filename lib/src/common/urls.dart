@@ -1,6 +1,6 @@
 class Urls {
 //Live
-  static const serviceUrl = "https://service.clontalk.com";
+ static const serviceUrl = "https://service.clontalk.com";
 
   //Test
  //  static const serviceUrl = "http://localhost:8090";
@@ -35,5 +35,6 @@ class Urls {
       '$notificationMappingUrl/sendusernotification';
   static const updateFcmToken = '$notificationMappingUrl/updatefcmtoken';
 static const fetchUsernotifications = '$notificationMappingUrl/fetchusernotification';
+static const markAsSeenUrl = '$notificationMappingUrl/markasseen';
   
 }

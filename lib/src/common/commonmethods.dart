@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
 import 'package:puvi/src/cart/cart.controller.dart';
 import 'package:puvi/src/models/product.dart';
 import 'package:puvi/src/models/user.dart';
-import 'package:intl/intl.dart';
 
 class CommonMethods {
   static String buildRedirectUrl(
@@ -121,5 +121,18 @@ class CommonMethods {
         );
       },
     );
+  }
+
+  static String timeAgo(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inMinutes < 1) return "just now";
+    if (diff.inMinutes < 60) return "${diff.inMinutes} min ago";
+    if (diff.inHours < 24) return "${diff.inHours} hr ago";
+    if (diff.inDays < 30) {
+      return "${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago";
+    }
+    return "${diff.inDays ~/ 30} month${diff.inDays ~/ 30 > 1 ? 's' : ''} ago";
   }
 }

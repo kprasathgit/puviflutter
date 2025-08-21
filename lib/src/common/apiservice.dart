@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 /// A generic API response wrapper
@@ -82,6 +83,29 @@ class ApiService {
       }
     } catch (_) {
       return "HTTP ${response.statusCode}: ${response.reasonPhrase}";
+    }
+  }
+
+  static Future<ApiResult<T>> postRaw<T>({
+    required String url,
+    required dynamic body, // can be List or Map
+    required T Function(dynamic) fromJson,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: _headers,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final map = json.decode(response.body) as Map<String, dynamic>;
+        return ApiResult.fromMap(map, fromJson);
+      } else {
+        return ApiResult(status: false, message: parseErrorMessage(response));
+      }
+    } catch (e) {
+      return ApiResult(status: false, message: "POST Exception: $e");
     }
   }
 }

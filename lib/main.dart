@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:puvi/src/app.dart';
 import 'package:puvi/src/common/storageutil.dart';
@@ -15,6 +16,7 @@ Future<void> main() async {
 
   // ✅ Initialize Firebase + Notifications before runApp
   await FirebaseService.init();
+
   // ✅ Setup app-wide Notification Controller
   notificationController = NotificationController(NotificationService());
 
@@ -32,26 +34,15 @@ Future<void> main() async {
 
   runApp(const MyApp());
 
-  // // ✅ Ask for notification permission AFTER home screen load
-  // WidgetsBinding.instance.addPostFrameCallback((_) {
-  //   _askNotificationPermission();
-  // });
+  // ✅ Ask permission only after UI is ready
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+     FirebaseService.askNotificationPermission();
+   // NotificationHelper.requestPermission();
+  });
 
-  // ✅ Check for service worker update
+  // ✅ Check for service worker updatex
   checkForUpdate();
 }
-
-/// Request notification permission once home screen is ready
-// Future<void> _askNotificationPermission() async {
-//   if (html.Notification.supported) {
-//     final permission = await html.Notification.requestPermission();
-//     if (permission == "granted") {
-//       print("✅ Notifications allowed by user");
-//     } else {
-//       print("❌ Notifications denied by user");
-//     }
-//   }
-// }
 
 /// Checks service worker updates and reloads page if new version is installed
 void checkForUpdate() {

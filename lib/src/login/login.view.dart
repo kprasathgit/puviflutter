@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:puvi/main.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
-import 'package:puvi/src/common/apiservice.dart';
 import 'package:puvi/src/common/commonappbar.dart';
 import 'package:puvi/src/common/commonmethods.dart';
 import 'package:puvi/src/common/constantvalues.dart';
@@ -61,7 +60,8 @@ class _LoginScreenState extends State<LoginScreen> {
       await StorageUtil.saveUserLocally(user);
       await firestoreController.signInFirebaseWithCustomToken(user.uid!);
       final currentToken = FirebaseService.token;
-      if (currentToken != null && currentToken != user.fcmtoken) {
+      // if (currentToken != null && currentToken != user.fcmtoken) {
+      if (currentToken != null) {
         await loginController.updateFcmToken(user.uid!, currentToken);
       }
       if (StorageUtil.uid != null) {
@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isWide = MediaQuery.of(context).size.width > 600;
+    //final isWide = MediaQuery.of(context).size.width > 600;
     final themeColor = const Color(0xFF2A3B47); // Puvi dark bluish
 
     return Scaffold(

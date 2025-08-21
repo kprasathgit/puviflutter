@@ -13,8 +13,6 @@ import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/homepage/homepage.service.dart';
 import 'package:puvi/src/login/login.controller.dart';
 import 'package:puvi/src/login/login.service.dart';
-import 'package:puvi/src/notification/notification.controller.dart';
-import 'package:puvi/src/notification/notification.service.dart';
 import 'package:puvi/src/ordersummary/ordersummary.controller.dart';
 import 'package:puvi/src/ordersummary/ordersummary.service.dart';
 import 'package:puvi/src/userdetails/userdetails.controller.dart';

@@ -11,6 +11,7 @@ import 'package:puvi/src/common/keyboardscrollable.dart';
 import 'package:puvi/src/common/storageutil.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/models/product.dart';
+import 'package:puvi/src/notification/notification.helper.dart';
 import 'package:puvi/src/widget/commonwidget.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
@@ -104,6 +105,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       BuyNowSession.set(product: product, qty: qty);
       context.go(CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,
           slug: product.slug));
+
+      // 🔔 Ask for notification permission (soft + browser prompt)
+      Future.delayed(const Duration(seconds: 1), () {
+        NotificationHelper.requestPermission();
+      });
     } catch (e) {
     } finally {
       setState(() {

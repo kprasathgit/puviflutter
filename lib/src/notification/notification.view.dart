@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:puvi/src/notification/notification.controller.dart';
-import 'package:puvi/src/models/usernotification.dart';
 import 'package:puvi/src/common/keyboardscrollable.dart';
+import 'package:puvi/src/notification/notification.controller.dart';
 
 class NotificationPanel extends StatefulWidget {
   final VoidCallback onClose;
@@ -17,13 +16,8 @@ class _NotificationPanelState extends State<NotificationPanel>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _offset;
-
-  /// Track which notifications are collapsed; default is expanded
   final Set<String> _collapsedIds = {};
-
-  /// Focus node for keyboard scroll
   final FocusNode _focusNode = FocusNode();
-
   ScrollController? _scrollController;
 
   @override
@@ -38,7 +32,6 @@ class _NotificationPanelState extends State<NotificationPanel>
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
 
-    // Request focus so KeyboardScrollable works immediately
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
@@ -48,11 +41,11 @@ class _NotificationPanelState extends State<NotificationPanel>
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
+    _scrollController?.dispose();
     super.dispose();
   }
 
-  void _toggleCollapse(int? id) {
-    final key = id?.toString() ?? '';
+  void _toggleCollapse(String key) {
     setState(() {
       if (_collapsedIds.contains(key)) {
         _collapsedIds.remove(key);
@@ -62,7 +55,23 @@ class _NotificationPanelState extends State<NotificationPanel>
     });
   }
 
-  bool _isCollapsed(int? id) => _collapsedIds.contains(id?.toString() ?? '');
+  bool _isCollapsed(String key) => _collapsedIds.contains(key);
+
+  /// Format relative time like "5 min ago", "3 hr ago"
+  String _timeAgo(DateTime? date) {
+    if (date == null) return ""; // show nothing if null
+
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inMinutes < 1) return "just now";
+    if (diff.inMinutes < 60) return "${diff.inMinutes} min ago";
+    if (diff.inHours < 24) return "${diff.inHours} hr ago";
+    if (diff.inDays < 30) {
+      return "${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago";
+    }
+    return "${diff.inDays ~/ 30} month${(diff.inDays ~/ 30) > 1 ? 's' : ''} ago";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,13 +102,38 @@ class _NotificationPanelState extends State<NotificationPanel>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Notifications',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                            ),
+                          Row(
+                            children: [
+                              const Icon(Icons.notifications,
+                                  color: Colors.white),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Notifications',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              if (notifController.unreadCount > 0) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    notifController.unreadCount.toString(),
+                                    style: TextStyle(
+                                      color: Colors.green[700],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                           IconButton(
                             icon: const Icon(Icons.close, color: Colors.white),
@@ -108,98 +142,133 @@ class _NotificationPanelState extends State<NotificationPanel>
                         ],
                       ),
                     ),
-                    // if (notifController.unreadCount > 0)
-                    //   TextButton(
-                    //     onPressed: notifController.markAllSeen,
-                    //     child: Text(
-                    //       'Mark all seen (${notifController.unreadCount})',
-                    //       style: const TextStyle(fontSize: 14),
-                    //     ),
-                    //   ),
-                    // const Divider(height: 1),
 
-                    // Notification List
-                    Expanded(
-                      child: KeyboardScrollable(
-                        autofocus: true,
-                        controller: _scrollController,
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.all(8),
-                          itemCount: notifController.notifications.length,
-                          itemBuilder: (context, index) {
-                            final n = notifController.notifications[index];
-                            final isCollapsed = _isCollapsed(n.id);
-                            final bgColor =
-                                n.seen ? Colors.white : Colors.green[50];
-
-                            return InkWell(
-                              onTap: () {
-                                _toggleCollapse(n.id);
-                                if (!n.seen) {
-                                  n.seen = true;
-                                  notifController.notifyListeners();
-
-                                  // TODO: Call backend markSeen(n.uniqueKey, uid)
-                                }
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                decoration: BoxDecoration(
-                                  color:
-                                      bgColor, // <-- seen/unseen reflected here
-                                  borderRadius: BorderRadius.circular(8),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 2,
-                                      offset: Offset(0, 1),
-                                    ),
-                                  ],
-                                ),
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            n.title ?? 'No Title',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                              color: n.seen
-                                                  ? Colors.grey[800]
-                                                  : Colors.black,
-                                            ),
-                                          ),
-                                        ),
-                                        Icon(
-                                          isCollapsed
-                                              ? Icons.keyboard_arrow_up
-                                              : Icons.keyboard_arrow_down,
-                                          size: 20,
-                                          color: Colors.grey[700],
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 6),
-                                    if (!isCollapsed)
-                                      Text(
-                                        n.body ?? '',
-                                        style: const TextStyle(fontSize: 14),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+                    // Mark all seen
+                    if (notifController.unreadCount > 0)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              right: 12, top: 8, bottom: 4),
+                          child: TextButton.icon(
+                            onPressed: notifController.markAllSeen,
+                            icon: const Icon(Icons.done_all, size: 18),
+                            label: Text(
+                              'Mark all as seen',
+                              style: TextStyle(color: Colors.green[700]),
+                            ),
+                          ),
                         ),
                       ),
+
+                    const Divider(height: 1),
+
+                    // Notification list
+                    Expanded(
+                      child: notifController.notifications.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "No notifications",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black54),
+                              ),
+                            )
+                          : KeyboardScrollable(
+                              autofocus: true,
+                              controller: _scrollController,
+                              child: ListView.builder(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.all(8),
+                                itemCount: notifController.notifications.length,
+                                itemBuilder: (context, index) {
+                                  final n =
+                                      notifController.notifications[index];
+                                  final collapsed = _isCollapsed(
+                                      n.id?.toString() ?? n.uniquekey);
+                                  final bgColor =
+                                      n.seen ? Colors.white : Colors.green[50];
+
+                                  return InkWell(
+                                    onTap: () async {
+                                      _toggleCollapse(n.id?.toString() ??
+                                          n.uniquekey);
+                                      if (!n.seen) {
+                                        await notifController.markSeen(n);
+                                      }
+                                    },
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 250),
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: bgColor,
+                                        borderRadius: BorderRadius.circular(8),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black12,
+                                            blurRadius: 2,
+                                            offset: Offset(0, 1),
+                                          ),
+                                        ],
+                                      ),
+                                      padding: const EdgeInsets.all(12),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  n.title,
+                                                  style: TextStyle(
+                                                    fontWeight: n.seen
+                                                        ? FontWeight.normal
+                                                        : FontWeight.bold,
+                                                    fontSize: 16,
+                                                    color: n.seen
+                                                        ? Colors.grey[800]
+                                                        : Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                _timeAgo(n.createdtime),
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                              Icon(
+                                                collapsed
+                                                    ? Icons.keyboard_arrow_down
+                                                    : Icons.keyboard_arrow_up,
+                                                size: 20,
+                                                color: Colors.grey[700],
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
+                                          if (!collapsed)
+                                            Text(
+                                              n.body,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: n.seen
+                                                    ? Colors.grey[700]
+                                                    : Colors.black,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
                     ),
                   ],
                 ),
