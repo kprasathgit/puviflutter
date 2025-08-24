@@ -55,7 +55,8 @@ class FirebaseService {
       vapidKey:
           'BFFJUELo-1JO391-0H_4ov3qVlrIPjtaNLQQUDRXlR8WNIY4JLj-vood7JrOAbqV0uLawprzm6_2qZVJRg2M8ts',
     );
-    print('🔑 FCM Token: $_fcmToken');
+    // print('🔑 FCM Token: $_fcmToken');
+    print('🔑 FCM Token: created');
     return _fcmToken;
   }
 

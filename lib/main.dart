@@ -11,37 +11,80 @@ import 'package:url_strategy/url_strategy.dart';
 
 late NotificationController notificationController;
 
+// Future<void> main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+
+//   // ✅ Initialize Firebase + Notifications before runApp
+//   await FirebaseService.init();
+
+//   // ✅ Setup app-wide Notification Controller
+//   notificationController = NotificationController(NotificationService());
+
+// // ✅ Load cached notifications immediately (non-blocking UI)
+//   unawaited(notificationController.loadFromCache());
+
+// // ✅ Fetch fresh notifications in background
+//   if (StorageUtil.uid != null) {
+//     unawaited(
+//         notificationController.fetchFromNotificationServer(StorageUtil.uid!));
+//   }
+
+//   // ✅ Web routing (remove # in URL)
+//   setPathUrlStrategy();
+
+//   runApp(const MyApp());
+
+//   // ✅ Ask permission only after UI is ready
+//   WidgetsBinding.instance.addPostFrameCallback((_) {
+//      FirebaseService.askNotificationPermission();
+//    // NotificationHelper.requestPermission();
+//   });
+
+//   // ✅ Check for service worker updatex
+//   checkForUpdate();
+// }
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ Initialize Firebase + Notifications before runApp
-  await FirebaseService.init();
-
-  // ✅ Setup app-wide Notification Controller
+  // ✅ Setup NotificationController (independent of Firebase)
   notificationController = NotificationController(NotificationService());
 
-// ✅ Load cached notifications immediately (non-blocking UI)
-  unawaited(notificationController.loadFromCache());
-
-// ✅ Fetch fresh notifications in background
-  if (StorageUtil.uid != null) {
-    unawaited(
-        notificationController.fetchFromNotificationServer(StorageUtil.uid!));
-  }
-
-  // ✅ Web routing (remove # in URL)
+  // ✅ Use clean web URLs (remove #)
   setPathUrlStrategy();
 
+  await FirebaseService.init();
+
+  // ✅ Run UI immediately (no blocking)
   runApp(const MyApp());
 
-  // ✅ Ask permission only after UI is ready
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-     FirebaseService.askNotificationPermission();
-   // NotificationHelper.requestPermission();
-  });
+  // ✅ Initialize Firebase/Notifications in background (safe)
+  unawaited(_initServices());
+}
 
-  // ✅ Check for service worker updatex
-  checkForUpdate();
+Future<void> _initServices() async {
+  try {
+    // ✅ Cache notifications immediately
+    unawaited(notificationController.loadFromCache());
+
+    // ✅ Fetch server notifications only if user logged in
+    if (StorageUtil.uid != null) {
+      unawaited(
+        notificationController.fetchFromNotificationServer(StorageUtil.uid!),
+      );
+    }
+
+    // ✅ Ask notification permission only after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FirebaseService.askNotificationPermission();
+    });
+
+    // ✅ Service worker update check (for PWA)
+    checkForUpdate();
+  } catch (e, st) {
+    debugPrint("🔥 Init services failed: $e");
+    debugPrintStack(stackTrace: st);
+  }
 }
 
 /// Checks service worker updates and reloads page if new version is installed
