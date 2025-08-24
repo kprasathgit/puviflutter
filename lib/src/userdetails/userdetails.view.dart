@@ -157,6 +157,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
     final mobile = "91${phone.text.trim()}";
 
+    // Directly send OTP without hCaptcha
     OTPService.sendOtp(mobile, onSuccess: (data) {
       setState(() => loading = false);
       final reqId = data['requestId'];
@@ -213,8 +214,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
 
       final redirectTo = widget.next ??
           (widget.flow == 'checkout' && widget.slug != null
-              ? CommonMethods.buildRedirectUrl(
-                  AppRouteConstants.orderSummary,
+              ? CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,
                   slug: widget.slug)
               : AppRouteConstants.homeScreen);
 

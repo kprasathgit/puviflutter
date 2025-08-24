@@ -133,24 +133,6 @@
   <script type="text/javascript" onload="initSendOTP(configuration)"
     src="https://verify.msg91.com/otp-provider.js"></script>
 
-  <!-- ✅ hCaptcha -->
-  <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-  <script>
-    function runHCaptcha(callback) {
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.log("hCaptcha mock success");
-        callback('dev-mock-token');
-        return;
-      }
-      hcaptcha.render('hcaptcha-container', {
-        sitekey: 'ebb870f6-227c-458e-bb58-4d5e7df4d3e8',
-        size: 'invisible',
-        callback: callback,
-        'error-callback': function () { callback(null); }
-      });
-      hcaptcha.execute();
-    }
-  </script>
 </head>
 
 <body>
@@ -162,8 +144,7 @@
     </div>
   </div>
 
-  <!-- ✅ Hidden hCaptcha container -->
-  <div id="hcaptcha-container" style="display:none;"></div>
+
 
   <!-- Flutter Web entry -->
   <script src="flutter_bootstrap.js" async></script>
@@ -200,18 +181,16 @@
   </script>
 
   <!-- ================================
-       Flutter Web <-> MSG91 + hCaptcha Bridge
+       Flutter Web <-> MSG91 Bridge
        ================================ -->
   <script>
     function sendOtpFromFlutter(mobile, onSuccess, onError) {
-      runHCaptcha(function (token) {
-        if (typeof sendOtp === "function") {
-          sendOtp(mobile, onSuccess, onError);
-        } else {
-          console.error("sendOtp function not available");
-          onError && onError({ message: "sendOtp not ready" });
-        }
-      });
+      if (typeof sendOtp === "function") {
+        sendOtp(mobile, onSuccess, onError);
+      } else {
+        console.error("sendOtp function not available");
+        onError && onError({ message: "sendOtp not ready" });
+      }
     }
 
     function verifyOtpFromFlutter(otp, reqId, onSuccess, onError) {
