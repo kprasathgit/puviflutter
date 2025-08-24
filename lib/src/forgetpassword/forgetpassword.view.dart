@@ -65,7 +65,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final mobileForOtp = "91$phoneInput"; // attach 91 only for OTP service
 
     try {
-      final exists = await forgetpasswordController.checkUserExists(mobileForOtp);
+      final exists = await forgetpasswordController.checkUserExists(phoneInput);
       if (!exists) {
         setState(() {
           error = "User not found";
