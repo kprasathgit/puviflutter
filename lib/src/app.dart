@@ -9,6 +9,8 @@ import 'package:puvi/src/firebase/firebase.controller.dart';
 import 'package:puvi/src/firebase/firebase.service.dart';
 import 'package:puvi/src/firestore/firestore.controller.dart';
 import 'package:puvi/src/firestore/firestore.service.dart';
+import 'package:puvi/src/forgetpassword/forgetpassword.controller.dart';
+import 'package:puvi/src/forgetpassword/forgetpassword.service.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/homepage/homepage.service.dart';
 import 'package:puvi/src/login/login.controller.dart';
@@ -56,6 +58,9 @@ class MyApp extends StatelessWidget {
               FirebaseController(FirebaseService()), // ✅ provide theme
         ),
         ChangeNotifierProvider.value(value: notificationController),
+        ChangeNotifierProvider(
+            create: (context) =>
+                ForgetpasswordController(ForgetPasswordService())),
       ],
       child: Consumer<ThemeProvider>(
         builder:

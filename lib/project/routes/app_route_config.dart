@@ -9,6 +9,8 @@ import 'package:puvi/src/blog/herbalpowderuses.dart';
 import 'package:puvi/src/blog/howwemake.dart';
 import 'package:puvi/src/blog/whypuvipureblog.view.dart';
 import 'package:puvi/src/cart/cart.view.dart';
+import 'package:puvi/src/forgetpassword/forgetpassword.view.dart';
+import 'package:puvi/src/forgetpassword/resetpassword.view.dart';
 import 'package:puvi/src/homepage/hompage.view.dart';
 import 'package:puvi/src/login/login.view.dart';
 import 'package:puvi/src/orderdetails/orderdetails.view.dart';
@@ -215,6 +217,24 @@ class MyAppRouter {
             return LoginScreen(flow: flow, slug: slug, next: next);
           },
         ),
+        GoRoute(
+          path: AppRouteConstants.forgotPassword,
+          builder: (context, state) {
+            return ForgotPasswordScreen();
+          },
+        ),
+        GoRoute(
+          path: AppRouteConstants.resetPassword,
+          builder: (context, state) {
+            final mobile = state.uri.queryParameters['mobile'];
+            if (mobile == null) {
+              return const Scaffold(
+                body: Center(child: Text("Mobile number missing")),
+              );
+            }
+            return ResetPasswordScreen(mobile: mobile);
+          },
+        )
       ],
       errorPageBuilder: (context, state) => MaterialPage(child: ErrorPage()),
     );

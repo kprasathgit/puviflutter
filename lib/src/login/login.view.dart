@@ -62,12 +62,20 @@ class _LoginScreenState extends State<LoginScreen> {
       final currentToken = FirebaseService.token;
       // if (currentToken != null && currentToken != user.fcmtoken) {
       if (currentToken != null) {
-        await loginController.updateFcmToken(user.uid!, currentToken);
+        User? updatedUser =
+            await loginController.updateFcmToken(user.uid!, currentToken);
+        if (updatedUser != null &&
+            updatedUser.fcmtoken != null &&
+            updatedUser.fcmtoken == currentToken) {
+          print("FCM Token updated after Login.");
+        } else {
+          print("FCM Token updation failed while Login.");
+        }
       }
       if (StorageUtil.uid != null) {
         // unawaited(notificationController
         //     .fetchFromNotificationServer(StorageUtil.uid!));
-         await notificationController
+        await notificationController
             .fetchFromNotificationServer(StorageUtil.uid!);
       }
       final redirectTo = widget.next ??
@@ -220,6 +228,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
+                      TextButton(
+                        onPressed: _goToForgotPassword,
+                        child: const Text("Forgot Password?",
+                            style: TextStyle(fontSize: 14)),
+                      ),
                     ],
                   ),
                 ),
@@ -229,5 +242,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void _goToForgotPassword() {
+    final url = CommonMethods.buildRedirectUrl(
+      AppRouteConstants.forgotPassword,
+    );
+    context.go(url);
   }
 }

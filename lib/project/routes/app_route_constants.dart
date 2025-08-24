@@ -35,6 +35,10 @@ class AppRouteConstants {
   static const String forgotPassword = '/forgotpassword';
   static const String forgotPasswordName = '/ForgotPassword';
 
+  
+  static const String resetPassword = '/resetpassword';
+  static const String resetPasswordName = '/ResetPassword';
+
   static const String orders = '/orders';
   static const String ordersName = '/Orders';
 
