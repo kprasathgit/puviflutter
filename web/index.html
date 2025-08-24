@@ -204,8 +204,8 @@
 
     function retryOtpFromFlutter(reqId, onSuccess, onError) {
       if (typeof retryOtp === "function") {
-        retryOtp(reqId, onSuccess, onError);
-      } else {  
+        retryOtp('11', onSuccess, onError, reqId);
+      } else {
         console.error("retryOtp function not available");
         onError && onError({ message: "retryOtp not ready" });
       }
