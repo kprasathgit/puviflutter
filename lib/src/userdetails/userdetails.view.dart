@@ -9,6 +9,8 @@ import 'package:puvi/src/firebase/firebase.service.dart';
 import 'package:puvi/src/firestore/firestore.controller.dart';
 import 'package:puvi/src/models/user.dart';
 import 'package:puvi/src/userdetails/userdetails.controller.dart';
+import 'package:puvi/src/otp/otp.service.dart';
+import 'package:puvi/src/otp/otpscreen.view.dart';
 
 class UserDetailsScreen extends StatefulWidget {
   final String? flow;
@@ -27,12 +29,15 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
   final phone = TextEditingController();
   final address = TextEditingController();
   final password = TextEditingController();
+
   late UserDetailsController userDetailsController;
+  late FirestoreController firestoreController;
+
   final phoneRegex = RegExp(r'^[6-9]\d{9}$');
 
   bool loading = false;
   String? error;
-  late FirestoreController firestoreController;
+  String? verifiedPhone;
 
   @override
   void initState() {
@@ -124,7 +129,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                         ? null
                         : () {
                             if (_formKey.currentState!.validate()) {
-                              registerUser();
+                              _startOtpFlow();
                             }
                           },
                     child: loading
@@ -144,7 +149,44 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     );
   }
 
-  Future<void> registerUser() async {
+  void _startOtpFlow() {
+    setState(() {
+      loading = true;
+      error = null;
+    });
+
+    final mobile = "91${phone.text.trim()}";
+
+    OTPService.sendOtp(mobile, onSuccess: (data) {
+      setState(() => loading = false);
+      final reqId = data['requestId'];
+      _showOtpDialog(mobile, reqId);
+    }, onError: (_) {
+      setState(() {
+        loading = false;
+        error = "Failed to send OTP. Try again.";
+      });
+    });
+  }
+
+  void _showOtpDialog(String mobile, String reqId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => OtpPopup(
+        mobile: mobile,
+        reqId: reqId,
+        onClose: () => Navigator.pop(ctx),
+        onVerified: () {
+          Navigator.pop(ctx);
+          verifiedPhone = mobile;
+          _registerUser();
+        },
+      ),
+    );
+  }
+
+  Future<void> _registerUser() async {
     setState(() {
       loading = true;
       error = null;
@@ -153,11 +195,11 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     try {
       final userDetails = {
         'name': name.text.trim(),
-        'username': phone.text.trim(),
-        'mobileno': phone.text.trim(),
+        'username': verifiedPhone ?? phone.text.trim(),
+        'mobileno': verifiedPhone ?? phone.text.trim(),
         'password': password.text,
         'address': address.text.trim(),
-        'fcmtoken': FirebaseService.token??"",
+        'fcmtoken': FirebaseService.token ?? "",
       };
 
       User? user = await userDetailsController.registerUser(userDetails);
@@ -166,18 +208,17 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
         return;
       }
 
-      // Remove password before saving locally
-
       await StorageUtil.saveUserLocally(user);
       await firestoreController.signInFirebaseWithCustomToken(user.uid!);
 
       final redirectTo = widget.next ??
           (widget.flow == 'checkout' && widget.slug != null
-              ? CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,
+              ? CommonMethods.buildRedirectUrl(
+                  AppRouteConstants.orderSummary,
                   slug: widget.slug)
               : AppRouteConstants.homeScreen);
 
-      context.go(redirectTo);
+      if (mounted) context.go(redirectTo);
     } catch (e) {
       setState(() => error = e.toString());
     } finally {

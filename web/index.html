@@ -121,6 +121,36 @@
       }
     }
   </style>
+  <script type="text/javascript">
+    var configuration = {
+      widgetId: "35686f6a4244303635313831",
+      tokenAuth: "464666TtWRf1rj9or689f0cb1P1",
+      exposeMethods: true,
+      success: (data) => console.log("OTP Success (global)", data),
+      failure: (error) => console.log("OTP Failure (global)", error),
+    };
+  </script>
+  <script type="text/javascript" onload="initSendOTP(configuration)"
+    src="https://verify.msg91.com/otp-provider.js"></script>
+
+  <!-- ✅ hCaptcha -->
+  <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+  <script>
+    function runHCaptcha(callback) {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log("hCaptcha mock success");
+        callback('dev-mock-token');
+        return;
+      }
+      hcaptcha.render('hcaptcha-container', {
+        sitekey: 'your-hcaptcha-site-key',
+        size: 'invisible',
+        callback: callback,
+        'error-callback': function () { callback(null); }
+      });
+      hcaptcha.execute();
+    }
+  </script>
 </head>
 
 <body>
@@ -131,6 +161,9 @@
       <div class="loader"></div>
     </div>
   </div>
+
+  <!-- ✅ Hidden hCaptcha container -->
+  <div id="hcaptcha-container" style="display:none;"></div>
 
   <!-- Flutter Web entry -->
   <script src="flutter_bootstrap.js" async></script>
@@ -164,6 +197,40 @@
         el.remove();
       }
     });
+  </script>
+
+  <!-- ================================
+       Flutter Web <-> MSG91 + hCaptcha Bridge
+       ================================ -->
+  <script>
+    function sendOtpFromFlutter(mobile, onSuccess, onError) {
+      runHCaptcha(function (token) {
+        if (typeof sendOtp === "function") {
+          sendOtp(mobile, onSuccess, onError);
+        } else {
+          console.error("sendOtp function not available");
+          onError && onError({ message: "sendOtp not ready" });
+        }
+      });
+    }
+
+    function verifyOtpFromFlutter(otp, reqId, onSuccess, onError) {
+      if (typeof verifyOtp === "function") {
+        verifyOtp(otp, onSuccess, onError);
+      } else {
+        console.error("verifyOtp function not available");
+        onError && onError({ message: "verifyOtp not ready" });
+      }
+    }
+
+    function retryOtpFromFlutter(reqId, onSuccess, onError) {
+      if (typeof retryOtp === "function") {
+        retryOtp(null, onSuccess, onError);
+      } else {
+        console.error("retryOtp function not available");
+        onError && onError({ message: "retryOtp not ready" });
+      }
+    }
   </script>
 </body>
 
