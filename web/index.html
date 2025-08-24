@@ -74,14 +74,16 @@
       justify-content: center;
       background: #ffffff;
       z-index: 9999;
-      opacity: 1;
-      transition: opacity 0.35s ease-out;
+      /* COMMENTED OUT FADE TRANSITION */
+      /* opacity: 1;
+      transition: opacity 0.35s ease-out; */
     }
 
-    #splash.fade {
+    /* .fade no longer needed */
+    /* #splash.fade {
       opacity: 0;
       pointer-events: none;
-    }
+    } */
 
     .splash-content {
       display: flex;
@@ -154,8 +156,12 @@
     window.addEventListener("flutter-first-frame", function () {
       const el = document.getElementById("splash");
       if (el) {
-        el.classList.add("fade");
-        setTimeout(() => el.remove(), 380); // sync with CSS transition
+        // OLD FADE LOGIC (COMMENTED):
+        // el.classList.add("fade");
+        // setTimeout(() => el.remove(), 380);
+
+        // NEW INSTANT REMOVAL:
+        el.remove();
       }
     });
   </script>
