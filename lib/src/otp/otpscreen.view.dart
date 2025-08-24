@@ -56,11 +56,11 @@ class _OtpPopupState extends State<OtpPopup> {
     OTPService.verifyOtp(otpController.text.trim(), widget.reqId,
         onSuccess: (_) => widget.onVerified(),
         onError: (_) {
-      setState(() {
-        errorMessage = "Invalid OTP. Try again.";
-        isLoading = false;
-      });
-    });
+          setState(() {
+            errorMessage = "Invalid OTP. Try again.";
+            isLoading = false;
+          });
+        });
   }
 
   void _resendOtp() {
@@ -68,9 +68,11 @@ class _OtpPopupState extends State<OtpPopup> {
       setState(() {
         secondsRemaining = 30;
         _startTimer();
+        errorMessage = ""; // clear previous error
       });
-    }, onError: (_) {
+    }, onError: (err) {
       setState(() {
+        print(err['error']??"");
         errorMessage = "Failed to resend OTP.";
       });
     });
@@ -134,12 +136,12 @@ class _OtpPopupState extends State<OtpPopup> {
               const SizedBox(height: 24),
               ElevatedButton(
                   onPressed: isLoading ? null : _verifyOtp,
-                  style: ElevatedButton.styleFrom(
-                      minimumSize: Size(maxWidth, 48)),
+                  style:
+                      ElevatedButton.styleFrom(minimumSize: Size(maxWidth, 48)),
                   child: isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text("Verify")),
-              
+
               const SizedBox(height: 12),
               secondsRemaining > 0
                   ? Text("Resend OTP in $secondsRemaining s")
