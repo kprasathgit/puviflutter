@@ -2,13 +2,20 @@ import 'dart:js' as js;
 import 'dart:html' as html;
 
 class OTPService {
-  /// Check if running on localhost (dev mode)
   static bool get isLocalhost {
     final host = html.window.location.hostname;
     return host == 'localhost' || host == '127.0.0.1';
   }
 
-  /// Send OTP directly (no hCaptcha)
+  /// Pass error as-is without converting to string
+  static Map<String, dynamic> _parseJsError(dynamic err) {
+    if (err == null) {
+      return {'error': 'Unknown JS error (null)'};
+    }
+    // Just return the error object itself (no toString)
+    return {'error': err};
+  }
+
   static void sendOtp(String mobile,
       {Function(dynamic)? onSuccess, Function(dynamic)? onError}) {
     if (isLocalhost) {
@@ -22,33 +29,14 @@ class OTPService {
         mobile,
         onSuccess != null ? js.allowInterop(onSuccess) : null,
         onError != null
-            ? js.allowInterop((err) {
-                String msg = 'Unknown JS error';
-
-                try {
-                  if (err != null) {
-                    if (err is String) {
-                      msg = err;
-                    } else if (err is Map && err.containsKey('message')) {
-                      msg = err['message'];
-                    } else {
-                      msg = err.toString();
-                    }
-                  }
-                } catch (_) {
-                  msg = 'Unparseable JS error';
-                }
-
-                onError({'error': msg});
-              })
+            ? js.allowInterop((err) => onError(_parseJsError(err)))
             : null,
       ]);
     } catch (e) {
-      onError?.call({'error': e.toString()});
+      onError?.call({'error': e});
     }
   }
 
-  /// Verify OTP
   static void verifyOtp(String otp, String reqId,
       {Function(dynamic)? onSuccess, Function(dynamic)? onError}) {
     if (isLocalhost) {
@@ -68,18 +56,14 @@ class OTPService {
         reqId,
         onSuccess != null ? js.allowInterop(onSuccess) : null,
         onError != null
-            ? js.allowInterop((err) {
-                final msg = err?.toString() ?? 'Unknown JS error';
-                onError({'error': msg});
-              })
+            ? js.allowInterop((err) => onError(_parseJsError(err)))
             : null,
       ]);
     } catch (e) {
-      onError?.call({'error': e.toString()});
+      onError?.call({'error': e});
     }
   }
 
-  /// Retry OTP
   static void retryOtp(String reqId,
       {Function(dynamic)? onSuccess, Function(dynamic)? onError}) {
     if (isLocalhost) {
@@ -93,14 +77,11 @@ class OTPService {
         reqId,
         onSuccess != null ? js.allowInterop(onSuccess) : null,
         onError != null
-            ? js.allowInterop((err) {
-                final msg = err?.toString() ?? 'Unknown JS error';
-                onError({'error': msg});
-              })
+            ? js.allowInterop((err) => onError(_parseJsError(err)))
             : null,
       ]);
     } catch (e) {
-      onError?.call({'error': e.toString()});
+      onError?.call({'error': e});
     }
   }
 }
