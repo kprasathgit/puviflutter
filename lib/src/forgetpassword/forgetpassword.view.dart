@@ -47,13 +47,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   void _startOtpFlow() async {
     final phoneInput = phoneController.text.trim();
 
-    if (phoneInput.isEmpty) {
-      setState(() => error = "Please enter your mobile number");
-      return;
-    }
-
-    if (phoneInput.length != 10) {
-      setState(() => error = "Mobile number must be 10 digits");
+    if (phoneInput.isEmpty || phoneInput.length != 10) {
+      setState(() => error = "Please enter a valid 10-digit mobile number");
       return;
     }
 
@@ -65,7 +60,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final mobileForOtp = "91$phoneInput"; // attach 91 only for OTP service
 
     try {
-      final exists = await forgetpasswordController.checkUserExists(mobileForOtp);
+      final exists = await forgetpasswordController
+          .checkUserExists(phoneInput); // raw 10-digit to backend
+
       if (!exists) {
         setState(() {
           error = "User not found";
@@ -79,8 +76,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           reqId = data['requestId'];
           loading = false;
         });
-        _showOtpDialog(phoneInput, reqId!); // forward raw 10-digit number
-      }, onError: (err) {
+        _showOtpDialog(phoneInput, reqId!); // pass raw number to OTP screen
+      }, onError: (_) {
         setState(() {
           error = "Failed to send OTP";
           loading = false;
@@ -123,7 +120,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: AppBar(title: const Text("Forgot Password")),
       body: SingleChildScrollView(
         child: SizedBox(
-          height: screenHeight - kToolbarHeight - MediaQuery.of(context).padding.top,
+          height: screenHeight -
+              kToolbarHeight -
+              MediaQuery.of(context).padding.top,
           width: screenWidth,
           child: Center(
             child: Container(

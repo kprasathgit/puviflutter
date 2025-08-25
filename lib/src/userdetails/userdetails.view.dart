@@ -155,13 +155,13 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       error = null;
     });
 
-    final mobile = "91${phone.text.trim()}";
+    final mobile = phone.text.trim(); // 10-digit only
+    final mobileForOtp = "91$mobile"; // attach 91 only for OTP
 
-    // Directly send OTP without hCaptcha
-    OTPService.sendOtp(mobile, onSuccess: (data) {
+    OTPService.sendOtp(mobileForOtp, onSuccess: (data) {
       setState(() => loading = false);
       final reqId = data['requestId'];
-      _showOtpDialog(mobile, reqId);
+      _showOtpDialog(mobile, reqId); // pass raw 10-digit
     }, onError: (_) {
       setState(() {
         loading = false;
@@ -194,10 +194,12 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
     });
 
     try {
+      final rawMobile = verifiedPhone ?? phone.text.trim();
+
       final userDetails = {
         'name': name.text.trim(),
-        'username': verifiedPhone ?? phone.text.trim(),
-        'mobileno': verifiedPhone ?? phone.text.trim(),
+        'username': rawMobile, // no +91
+        'mobileno': rawMobile, // no +91
         'password': password.text,
         'address': address.text.trim(),
         'fcmtoken': FirebaseService.token ?? "",

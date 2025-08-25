@@ -72,7 +72,7 @@ class _OtpPopupState extends State<OtpPopup> {
       });
     }, onError: (err) {
       setState(() {
-        print(err['error']??"");
+        print(err['error'] ?? "");
         errorMessage = "Failed to resend OTP.";
       });
     });
@@ -111,8 +111,11 @@ class _OtpPopupState extends State<OtpPopup> {
                 ],
               ),
               const SizedBox(height: 12),
-              Text("OTP sent to ${widget.mobile}",
-                  style: const TextStyle(color: Colors.grey)),
+              Text(
+                "OTP sent to ${widget.mobile.length == 12 && widget.mobile.startsWith("91") ? widget.mobile.substring(2) : widget.mobile}",
+                style: const TextStyle(color: Colors.grey),
+              ),
+
               const SizedBox(height: 20),
               // Pinput
               Pinput(
