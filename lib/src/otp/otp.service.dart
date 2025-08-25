@@ -23,7 +23,22 @@ class OTPService {
         onSuccess != null ? js.allowInterop(onSuccess) : null,
         onError != null
             ? js.allowInterop((err) {
-                final msg = err?.toString() ?? 'Unknown JS error';
+                String msg = 'Unknown JS error';
+
+                try {
+                  if (err != null) {
+                    if (err is String) {
+                      msg = err;
+                    } else if (err is Map && err.containsKey('message')) {
+                      msg = err['message'];
+                    } else {
+                      msg = err.toString();
+                    }
+                  }
+                } catch (_) {
+                  msg = 'Unparseable JS error';
+                }
+
                 onError({'error': msg});
               })
             : null,
