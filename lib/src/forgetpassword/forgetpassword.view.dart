@@ -16,7 +16,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final phoneController = TextEditingController();
-  String? reqId;
+  //String? reqId;
   bool loading = false;
   String? error;
   bool isValid = false;
@@ -73,10 +73,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       OTPService.sendOtp(mobileForOtp, onSuccess: (data) {
         setState(() {
-          reqId = data['requestId'];
           loading = false;
         });
-        _showOtpDialog(phoneInput, reqId!); // pass raw number to OTP screen
+        final reqId = data['requestId'];
+        _showOtpDialog(phoneInput, reqId); // pass raw number to OTP screen
       }, onError: (_) {
         setState(() {
           error = "Failed to send OTP";
@@ -90,7 +90,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       });
     }
   }
-
 
   void _showOtpDialog(String mobile, String reqId) {
     showDialog(
