@@ -70,12 +70,13 @@ class _OrderListScreenState extends State<OrderListScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text("Amount: ₹${o['amount'] ?? '--'}"),
-          Text("Status: ${o['orderstatus'] ?? 'Pending'}"),
+          Text("Status: ${o['orderStatus'] ?? 'Pending'}"),
         ],
       ),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: () {
-        final secureKey = o['secureKey'];
+       // final secureKey = o['secureKey'];
+       final secureKey = o['orderId'];
         if (secureKey != null) {
           context.push('/order-detail/$secureKey');
         }
