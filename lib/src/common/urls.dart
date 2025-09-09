@@ -5,7 +5,7 @@ class Urls {
   //Test
    // static const serviceUrl = "http://localhost:8090";
 
-//products Urlsஃ
+//products Urls
   static const productMappingUrl = '$serviceUrl/products'; // controller mapping
   static const fetchProducts = '$productMappingUrl/getproducts';
   static const fetchProductById = "$productMappingUrl/getproductbyid";
