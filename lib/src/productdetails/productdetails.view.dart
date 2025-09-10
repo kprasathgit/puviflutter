@@ -71,7 +71,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         icon: Icons.shopping_cart,
         backgroundColor: const Color.fromARGB(255, 188, 204, 95),
       );
-    } catch (e) {
     } finally {
       setState(() {
         isLoadingAddToCart = false;
@@ -110,7 +109,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       Future.delayed(const Duration(seconds: 1), () {
         NotificationHelper.requestPermission();
       });
-    } catch (e) {
     } finally {
       setState(() {
         isLoadingBuyNow = false;

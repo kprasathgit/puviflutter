@@ -67,7 +67,9 @@ class NotificationController with ChangeNotifier {
     final unseen = _notifications.where((n) => !n.seen).toList();
     if (unseen.isEmpty) return;
 
-    for (var n in unseen) n.seen = true;
+    for (var n in unseen) {
+      n.seen = true;
+    }
     notifyListeners();
 
     if (StorageUtil.uid != null) {

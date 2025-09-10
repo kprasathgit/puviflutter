@@ -92,20 +92,18 @@ void checkForUpdate() {
   final swContainer = html.window.navigator.serviceWorker;
   if (swContainer != null) {
     swContainer.getRegistration().then((reg) {
-      if (reg != null) {
-        reg.update();
+      reg.update();
 
-        // Watch for state changes of the new worker
-        final newWorker = reg.installing ?? reg.waiting;
-        if (newWorker != null) {
-          newWorker.on['statechange'].listen((event) {
-            if (newWorker.state == 'activated') {
-              // ✅ reload only once after full activation
-              html.window.location.reload();
-            }
-          });
-        }
+      // Watch for state changes of the new worker
+      final newWorker = reg.installing ?? reg.waiting;
+      if (newWorker != null) {
+        newWorker.on['statechange'].listen((event) {
+          if (newWorker.state == 'activated') {
+            // ✅ reload only once after full activation
+            html.window.location.reload();
+          }
+        });
       }
-    });
+        });
   }
 }
