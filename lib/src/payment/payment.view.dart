@@ -134,14 +134,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
     if (orderData == null) return;
 
     final options = {
-      'key': 'rzp_test_pF5x3pp39sVSZs',
+      //'key': 'rzp_test_pF5x3pp39sVSZs',
+      'key': orderData!['razorpayKey'],
       'amount': (orderData!['amount'] * 100).toInt(),
       'order_id': orderData!['razorpayOrderId'],
       'name': orderData!['name'],
       'description': 'Puvipure Order',
       'prefill': {
         'contact': orderData!['mobileno'],
-        'email': 'example@test.com',
+      //  'email': 'example@test.com',
       },
       'theme': {'color': '#00b894'},
       'external': {
