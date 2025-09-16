@@ -1,4 +1,4 @@
-// File: ordersummary.view.dart (or wherever you keep this)
+// File: ordersummary.view.dart
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,22 +6,20 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:universal_html/html.dart' as html;
 
 import 'package:puvi/src/cart/cart.controller.dart';
 import 'package:puvi/src/common/buynowsession.dart';
 import 'package:puvi/src/common/commonmethods.dart';
-import 'package:puvi/src/common/keyboardscrollable.dart';
 import 'package:puvi/src/common/storageutil.dart';
 import 'package:puvi/src/common/urls.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
 import 'package:puvi/src/models/product.dart';
 import 'package:puvi/src/ordersummary/ordersummary.controller.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:puvi/src/widget/deliveryaddresscard.dart';
 
 class OrderSummaryScreen extends StatefulWidget {
-  final String? slug; // Null means cart flow
-
-  // NEW optional named params for retry support:
+  final String? slug; // null → cart flow
   final String? retryFlow;
   final bool autoRetry;
 
@@ -42,78 +40,48 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   String? error;
   Product? singleProduct;
   late OrderSummaryController orderSummaryController;
-  late final ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
     orderSummaryController =
         Provider.of<OrderSummaryController>(context, listen: false);
 
-    // Combine widget-provided retry info with localStorage (web) retry info.
-    // final savedFlow = widget.retryFlow ??
-    //     ((kIsWeb && html.window.localStorage['retryFlow'] != null)
-    //         ? html.window.localStorage['retryFlow']
-    //         : null);
-    // final savedSlug = widget.slug ??
-    //     ((kIsWeb && html.window.localStorage['retrySlug'] != null)
-    //         ? html.window.localStorage['retrySlug']
-    //         : null);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _initData();
+    });
+  }
 
+  Future<void> _initData() async {
     final savedFlow = widget.retryFlow;
     final savedSlug = widget.slug;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      bool retryDone = false;
+    if (savedFlow != null && savedFlow.isNotEmpty) {
+      CommonMethods.showToast(
+        "Last payment failed. Retry Again",
+        toastLength: Toast.LENGTH_LONG,
+      );
 
-      // While loop retry logic - retry once if conditions met
-      while (!retryDone && savedFlow != null && savedFlow.isNotEmpty) {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(
-        //     content: Text(
-        //       "Last payment failed. Retry Again",
-        //       style: TextStyle(color: Colors.white),
-        //     ),
-        //     backgroundColor: Colors.red,
-        //     duration: Duration(seconds: 2),
-        //   ),
-        // );
+      if (savedSlug != null && singleProduct == null) {
+        await fetchSingleProduct(savedSlug);
+      }
 
-        CommonMethods.showToast("Last payment failed. Retry Again",
-            toastLength: Toast.LENGTH_LONG);
+      setState(() => isLoading = false);
+      return;
+    }
 
-        // Fetch product if needed
-        if (savedSlug != null && singleProduct == null) {
-          await fetchSingleProduct(savedSlug);
-        }
-
-        // Call createOrder with saved retry info
-        //  await createOrder(flow: savedFlow, slug: savedSlug);
-
-        retryDone = true; // break after one retry
+    if (widget.slug != null) {
+      if (BuyNowSession.isAvailable) {
         setState(() {
+          singleProduct = BuyNowSession.product;
           isLoading = false;
         });
+      } else {
+        await fetchSingleProduct(widget.slug!);
       }
-
-      // If no retry needed, just proceed with normal fetch
-      if (!retryDone) {
-        if (widget.slug != null) {
-          if (BuyNowSession.isAvailable) {
-            setState(() {
-              singleProduct = BuyNowSession.product;
-              isLoading = false;
-            });
-          } else {
-            await fetchSingleProduct(widget.slug!);
-          }
-        } else {
-          setState(() {
-            isLoading = false;
-          });
-        }
-      }
-    });
+    } else {
+      setState(() => isLoading = false);
+    }
   }
 
   Future<void> fetchSingleProduct(String slug) async {
@@ -145,7 +113,6 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     final user = await StorageUtil.getUserLocally();
 
     if (uid == null || user == null) {
-      // PRESERVE retry flags across login redirect (important enhancement)
       if (kIsWeb && flow != null) {
         html.window.localStorage['retryFlow'] = flow;
         if (slug != null && slug.isNotEmpty) {
@@ -168,6 +135,13 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
       return;
     }
 
+    if (user.address == null || user.address!.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("⚠️ Please add a delivery address first")),
+      );
+      setState(() => isCreatingOrder = false);
+      return;
+    }
     if ((slug ?? widget.slug) != null && singleProduct == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("⚠️ Product details not available")),
@@ -199,12 +173,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
         },
         body: jsonEncode(payload),
       );
-// debugPrint('Response status: ${res.statusCode}');
-// debugPrint('Response body: ${res.body}');
+
       if (res.statusCode == 200) {
         final secureKey = jsonDecode(res.body)['secureKey'];
 
-        // Store flow + slug for retry in case payment fails
         if (kIsWeb) {
           html.window.localStorage['retryFlow'] =
               flow ?? (widget.slug != null ? 'buyNow' : 'cart');
@@ -297,62 +269,61 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text("Order Summary")),
-      body: KeyboardScrollable(
-        controller: _scrollController,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: ListView(
-            controller: _scrollController,
-            // shrinkWrap: true, // So ListView wraps content height if small
-            //physics: const ClampingScrollPhysics(), // Better for nested scroll
-            children: [
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isCart ? "Items in Cart" : "Product Details",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 👇 Delivery address card
+            const DeliveryAddressCard(),
+
+            const SizedBox(height: 16),
+
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isCart ? "Items in Cart" : "Product Details",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildProductList(),
+                    const Divider(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Total Amount",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildProductList(),
-                      const Divider(height: 30),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            "Total Amount",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        Text(
+                          "₹${_calculateTotal().toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
                           ),
-                          Text(
-                            "₹${_calculateTotal().toStringAsFixed(2)}",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              // add more widgets here if needed
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: Padding(
@@ -375,7 +346,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             ),
             onPressed: isCreatingOrder
                 ? null
-                : () => createOrder(
+                : () async => await createOrder(
                       flow: widget.slug != null ? 'buyNow' : 'cart',
                       slug: widget.slug,
                     ),

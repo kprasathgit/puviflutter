@@ -104,13 +104,18 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: address,
-                    decoration:
-                        const InputDecoration(labelText: 'Shipping Address'),
+                    decoration: const InputDecoration(labelText: 'Address'),
                     maxLength: 200,
                     inputFormatters: [LengthLimitingTextInputFormatter(200)],
                     textInputAction: TextInputAction.next,
-                    validator: (v) =>
-                        v != null && v.isNotEmpty ? null : 'Required',
+                    // validator: (v) =>
+                    //     v != null && v.isNotEmpty ? null : 'Required',
+                    validator: (v) {
+                      if (v != null && v.isNotEmpty && v.length < 8) {
+                        return 'Address too short';
+                      }
+                      return null; // no validation if left empty
+                    },
                   ),
                   const SizedBox(height: 12),
                   TextFormField(

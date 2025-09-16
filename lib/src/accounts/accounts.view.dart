@@ -26,10 +26,15 @@ class AccountScreen extends StatelessWidget {
               future: StorageUtil.getUserLocally(),
               builder: (context, snapshot) {
                 final user = snapshot.data;
-                if (user == null) {
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    user == null) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                return _AccountContent(user: user);
+                if (snapshot.connectionState == ConnectionState.done &&
+                    user == null) {
+                  return const Center(child: Text("User Not Found"));
+                }
+                return _AccountContent(user: user!);
               },
             );
           }
@@ -67,7 +72,7 @@ class _LoginPrompt extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child:  Text(style: TextStyle(color: Colors.black ) ,"Login" ),
+                child: Text(style: TextStyle(color: Colors.black), "Login"),
               ),
             ],
           ),
