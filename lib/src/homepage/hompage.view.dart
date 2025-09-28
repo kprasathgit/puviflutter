@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         // );
       });
     }
-    future = homescreenController.fetchProducts(forceRefresh: true);
+    future = homescreenController.fetchProducts(forceRefresh: false);
   }
 
   @override
@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _onWillPop() {
     // return !(widget.disableBack);
-  return false;
+    return false;
   }
 
   @override

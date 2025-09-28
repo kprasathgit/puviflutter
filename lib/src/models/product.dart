@@ -1,6 +1,10 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' hide Category;
+
 import 'package:puvi/src/models/category.dart';
+import 'package:puvi/src/models/productdetail.dart';
+import 'package:puvi/src/models/productimage.dart';
 
 class Product {
   final int id;
@@ -16,6 +20,8 @@ class Product {
   final int displayorder;
   final Category category;
   final String slug;
+  final List<ProductImage> images;
+  final List<ProductDetail> details;
   Product({
     required this.id,
     required this.procode,
@@ -30,6 +36,8 @@ class Product {
     required this.displayorder,
     required this.category,
     required this.slug,
+    required this.images,
+    required this.details,
   });
 
   Product copyWith({
@@ -46,6 +54,8 @@ class Product {
     int? displayorder,
     Category? category,
     String? slug,
+    List<ProductImage>? images,
+    List<ProductDetail>? details,
   }) {
     return Product(
       id: id ?? this.id,
@@ -61,6 +71,8 @@ class Product {
       displayorder: displayorder ?? this.displayorder,
       category: category ?? this.category,
       slug: slug ?? this.slug,
+      images: images ?? this.images,
+      details: details ?? this.details,
     );
   }
 
@@ -80,6 +92,8 @@ class Product {
     result.addAll({'displayorder': displayorder});
     result.addAll({'category': category.toMap()});
     result.addAll({'slug': slug});
+    result.addAll({'images': images.map((x) => x.toMap()).toList()});
+    result.addAll({'details': details.map((x) => x.toMap()).toList()});
 
     return result;
   }
@@ -99,6 +113,10 @@ class Product {
       displayorder: map['displayorder']?.toInt() ?? 0,
       category: Category.fromMap(map['category']),
       slug: map['slug'] ?? '',
+      images: List<ProductImage>.from(
+          map['images']?.map((x) => ProductImage.fromMap(x))),
+      details: List<ProductDetail>.from(
+          map['details']?.map((x) => ProductDetail.fromMap(x))),
     );
   }
 
@@ -109,7 +127,7 @@ class Product {
 
   @override
   String toString() {
-    return 'Product(id: $id, procode: $procode, proname: $proname, description: $description, price: $price, priceqty: $priceqty, priceqtyunit: $priceqtyunit, stockqty: $stockqty, imageurl: $imageurl, isactive: $isactive, displayorder: $displayorder, category: $category, slug: $slug)';
+    return 'Product(id: $id, procode: $procode, proname: $proname, description: $description, price: $price, priceqty: $priceqty, priceqtyunit: $priceqtyunit, stockqty: $stockqty, imageurl: $imageurl, isactive: $isactive, displayorder: $displayorder, category: $category, slug: $slug, images: $images, details: $details)';
   }
 
   @override
@@ -129,7 +147,9 @@ class Product {
         other.isactive == isactive &&
         other.displayorder == displayorder &&
         other.category == category &&
-        other.slug == slug;
+        other.slug == slug &&
+        listEquals(other.images, images) &&
+        listEquals(other.details, details);
   }
 
   @override
@@ -146,6 +166,8 @@ class Product {
         isactive.hashCode ^
         displayorder.hashCode ^
         category.hashCode ^
-        slug.hashCode;
+        slug.hashCode ^
+        images.hashCode ^
+        details.hashCode;
   }
 }
