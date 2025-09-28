@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -70,181 +71,196 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text("Order Details")),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 🔹 Order Info
-            Text("Order ID: ${order!['orderId']}",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: theme.textTheme.bodyLarge?.color)),
-            Text("Status: ${order!['orderstatus']}",
-                style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
-            Text("Created: ${_formatDate(order!['createdAt'])}",
-                style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
-            const SizedBox(height: 16),
+      body: ScrollConfiguration(
+        behavior: MyCustomScrollBehavior(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 🔹 Order Info
+              Text("Order ID: ${order!['orderId']}",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: theme.textTheme.bodyLarge?.color)),
+              Text("Status: ${order!['orderstatus']}",
+                  style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
+              Text("Created: ${_formatDate(order!['createdAt'])}",
+                  style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
+              const SizedBox(height: 16),
 
-            // 🔹 Items List
-            Text("Items:",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: theme.textTheme.bodyLarge?.color)),
-            const SizedBox(height: 8),
-            ...items.map<Widget>((item) {
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: theme.dividerColor),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.brightness == Brightness.light
-                          ? Colors.black.withOpacity(0.03)
-                          : Colors.black.withOpacity(0.2),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 🔹 Product Image
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: item['imageurl'] != null
-                          ? Image.network(
-                              item['imageurl'],
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                            )
-                          : Container(
-                              width: 60,
-                              height: 60,
-                              color: theme.dividerColor,
-                              child: Icon(Icons.image,
-                                  color: theme.iconTheme.color),
+              // 🔹 Items List
+              Text("Items:",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: theme.textTheme.bodyLarge?.color)),
+              const SizedBox(height: 8),
+              ...items.map<Widget>((item) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.cardColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: theme.dividerColor),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.brightness == Brightness.light
+                            ? Colors.black.withOpacity(0.03)
+                            : Colors.black.withOpacity(0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 🔹 Product Image
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: item['imageurl'] != null
+                            ? Image.network(
+                                item['imageurl'],
+                                width: 60,
+                                height: 60,
+                                fit: BoxFit.cover,
+                              )
+                            : Container(
+                                width: 60,
+                                height: 60,
+                                color: theme.dividerColor,
+                                child: Icon(Icons.image,
+                                    color: theme.iconTheme.color),
+                              ),
+                      ),
+                      const SizedBox(width: 12),
+
+                      // 🔹 Product Details
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item['proname'] ?? '',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: theme.textTheme.bodyLarge?.color,
+                              ),
                             ),
-                    ),
-                    const SizedBox(width: 12),
+                            const SizedBox(height: 4),
+                            Text(
+                              "Qty: ${item['qty']}",
+                              style: TextStyle(
+                                  color: theme.textTheme.bodyMedium?.color),
+                            ),
+                          ],
+                        ),
+                      ),
 
-                    // 🔹 Product Details
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      // 🔹 Price
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            item['proname'] ?? '',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                            "₹${item['price']}",
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: theme.textTheme.bodyLarge?.color,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade400,
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            "Qty: ${item['qty']}",
-                            style: TextStyle(
-                                color: theme.textTheme.bodyMedium?.color),
                           ),
                         ],
                       ),
-                    ),
+                    ],
+                  ),
+                );
+              }).toList(),
 
-                    // 🔹 Price
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "₹${item['price']}",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green.shade400,
-                          ),
-                        ),
-                      ],
+              const SizedBox(height: 12),
+
+              // 🔹 Total Amount Summary
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.brightness == Brightness.light
+                      ? Colors.green.shade50
+                      : Colors.green.shade900.withOpacity(0.3), // dark mode bg
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: theme.brightness == Brightness.light
+                        ? Colors.green.shade200
+                        : Colors.green.shade700, // dark mode border
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Total Amount",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            theme.textTheme.bodyLarge?.color, // adaptive text
+                      ),
+                    ),
+                    Text(
+                      "₹$totalAmount",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: theme.brightness == Brightness.light
+                            ? Colors.green.shade400
+                            : Colors.green.shade300, // adaptive green
+                      ),
                     ),
                   ],
                 ),
-              );
-            }).toList(),
-
-            const SizedBox(height: 12),
-
-            // 🔹 Total Amount Summary
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.brightness == Brightness.light
-                    ? Colors.green.shade50
-                    : Colors.green.shade900.withOpacity(0.3), // dark mode bg
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: theme.brightness == Brightness.light
-                      ? Colors.green.shade200
-                      : Colors.green.shade700, // dark mode border
-                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Total Amount",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: theme.textTheme.bodyLarge?.color, // adaptive text
-                    ),
-                  ),
-                  Text(
-                    "₹$totalAmount",
-                    style: TextStyle(
-                      fontSize: 18,
+
+              const SizedBox(height: 20),
+
+              // 🔹 Tracking Section
+              Text("Delivery Status",
+                  style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: theme.brightness == Brightness.light
-                          ? Colors.green.shade400
-                          : Colors.green.shade300, // adaptive green
-                    ),
-                  ),
-                ],
+                      fontSize: 16,
+                      color: theme.textTheme.bodyLarge?.color)),
+              const SizedBox(height: 8),
+              OrderTrackingSwitchable(
+                steps: trackingSteps.map<Map<String, dynamic>>((step) {
+                  bool? completed = step['completed'];
+                  return {
+                    'label': step['label'] ?? '',
+                    'completed': completed ?? false,
+                    'timestamp': completed != null &&
+                            completed &&
+                            step['timestamp'] != null
+                        ? step['timestamp']
+                        : '',
+                  };
+                }).toList(),
               ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // 🔹 Tracking Section
-            Text("Delivery Status",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: theme.textTheme.bodyLarge?.color)),
-            const SizedBox(height: 8),
-            OrderTrackingSwitchable(
-              steps: trackingSteps.map<Map<String, dynamic>>((step) {
-                bool? completed = step['completed'];
-                return {
-                  'label': step['label'] ?? '',
-                  'completed': completed ?? false,
-                  'timestamp': completed != null &&
-                          completed &&
-                          step['timestamp'] != null
-                      ? step['timestamp']
-                      : '',
-                };
-              }).toList(),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
+}
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse, // enable mouse dragging
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.unknown,
+      };
 }
