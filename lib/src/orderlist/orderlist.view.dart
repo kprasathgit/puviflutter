@@ -57,26 +57,38 @@ class _OrderListScreenState extends State<OrderListScreen> {
     }
   }
 
-  Widget _buildOrderTile(Map<String, dynamic> o) {
+  Widget _buildOrderTile(Map<String, dynamic> o, ThemeData theme) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      tileColor: Colors.grey[200],
+      tileColor: theme.cardColor, // adapts to light/dark mode
       title: Text(
         "Order ID: ${o['orderId'] ?? '--'}",
-        style: const TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: theme.textTheme.bodyLarge?.color,
+        ),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Amount: ₹${o['amount'] ?? '--'}"),
-          Text("Status: ${o['orderStatus'] ?? 'Pending'}"),
+          Text(
+            "Amount: ₹${o['amount'] ?? '--'}",
+            style: TextStyle(color: theme.textTheme.bodyMedium?.color),
+          ),
+          Text(
+            "Status: ${o['orderStatus'] ?? 'Pending'}",
+            style: TextStyle(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      trailing: Icon(Icons.arrow_forward_ios,
+          size: 16, color: theme.iconTheme.color),
       onTap: () {
-       // final secureKey = o['secureKey'];
-       final secureKey = o['orderId'];
+        final secureKey = o['orderId'];
         if (secureKey != null) {
           context.push('/order-detail/$secureKey');
         }
@@ -86,6 +98,8 @@ class _OrderListScreenState extends State<OrderListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text("Your Orders")),
       body: KeyboardScrollable(
@@ -98,20 +112,30 @@ class _OrderListScreenState extends State<OrderListScreen> {
 
             if (error != null) {
               return Center(
-                child: Text(error!, style: const TextStyle(color: Colors.red)),
+                child: Text(
+                  error!,
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
               );
             }
 
             if (orders.isEmpty) {
-              return const Center(child: Text("No Orders Found"));
+              return Center(
+                child: Text(
+                  "No Orders Found",
+                  style: TextStyle(
+                      color: theme.textTheme.bodyMedium?.color,
+                      fontWeight: FontWeight.w500),
+                ),
+              );
             }
 
             return ListView.separated(
-              controller: PrimaryScrollController.of(context),
+              controller: _scrollController,
               padding: const EdgeInsets.all(16),
               itemCount: orders.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
-              itemBuilder: (_, i) => _buildOrderTile(orders[i]),
+              itemBuilder: (_, i) => _buildOrderTile(orders[i], theme),
             );
           },
         ),

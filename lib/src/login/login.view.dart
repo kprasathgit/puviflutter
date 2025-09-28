@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -34,6 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String? error;
   late LoginController loginController;
   late FirestoreController firestoreController;
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +51,6 @@ class _LoginScreenState extends State<LoginScreen> {
       };
 
       User? user = await loginController.checkLogin(data);
-      //  print(user);
       if (user == null) {
         setState(() => error = 'Login failed.');
         return;
@@ -59,8 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       await StorageUtil.saveUserLocally(user);
       await firestoreController.signInFirebaseWithCustomToken(user.uid!);
+
       final currentToken = FirebaseService.token;
-      // if (currentToken != null && currentToken != user.fcmtoken) {
       if (currentToken != null) {
         User? updatedUser =
             await loginController.updateFcmToken(user.uid!, currentToken);
@@ -72,12 +71,12 @@ class _LoginScreenState extends State<LoginScreen> {
           print("FCM Token updation failed while Login.");
         }
       }
+
       if (StorageUtil.uid != null) {
-        // unawaited(notificationController
-        //     .fetchFromNotificationServer(StorageUtil.uid!));
         await notificationController
             .fetchFromNotificationServer(StorageUtil.uid!);
       }
+
       final redirectTo = widget.next ??
           (widget.flow == ConstantValues.orderSummaryCheckout
               ? CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,
@@ -86,6 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       widget.slug != null)
                   ? '${AppRouteConstants.productDetails}/${Uri.encodeComponent(widget.slug!)}'
                   : AppRouteConstants.homeScreen);
+
       if (mounted) {
         SmartNavigator.go(context, redirectTo);
       }
@@ -104,140 +104,143 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //final isWide = MediaQuery.of(context).size.width > 600;
-    final themeColor = const Color(0xFF2A3B47); // Puvi dark bluish
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       appBar: CommonAppBar(title: "Login"),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 480),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.lock_outline,
-                          size: 72, color: themeColor.withOpacity(0.9)),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Welcome!',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: themeColor,
-                              fontWeight: FontWeight.bold,
-                            ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.lock_outline,
+                      size: 72, color: colors.primary.withOpacity(0.9)),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Welcome!',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      color: colors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Login to continue.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+
+                  if (error != null)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colors.errorContainer,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Login to continue.',
-                        style: TextStyle(color: Colors.grey.shade600),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-                      if (error != null)
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.error_outline,
-                                  color: Colors.redAccent),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  error!,
-                                  style:
-                                      const TextStyle(color: Colors.redAccent),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      if (error != null) const SizedBox(height: 16),
-                      TextFormField(
-                        controller: phone,
-                        decoration: const InputDecoration(
-                          labelText: 'Mobile Number',
-                          prefixIcon: Icon(Icons.phone),
-                          border: OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.phone,
-                        validator: (v) => v != null && v.length == 10
-                            ? null
-                            : 'Enter valid 10-digit number',
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: password,
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: Icon(Icons.lock_outline),
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (v) =>
-                            v != null && v.isNotEmpty ? null : 'Enter password',
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: loading
-                              ? null
-                              : () {
-                                  if (_formKey.currentState!.validate()) {
-                                    login();
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: themeColor,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: loading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white)
-                              : const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        crossAxisAlignment: WrapCrossAlignment.center,
+                      child: Row(
                         children: [
-                          const Text("Don't have an account? "),
-                          TextButton(
-                            onPressed: toRegister,
-                            child: const Text("Create one"),
-                          ),
+                          Icon(Icons.error_outline, color: colors.error),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              error!,
+                              style: TextStyle(color: colors.error),
+                            ),
+                          )
                         ],
                       ),
+                    ),
+                  if (error != null) const SizedBox(height: 16),
+
+                  TextFormField(
+                    controller: phone,
+                    decoration: InputDecoration(
+                      labelText: 'Mobile Number',
+                      prefixIcon: const Icon(Icons.phone),
+                      border: const OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.phone,
+                    validator: (v) => v != null && v.length == 10
+                        ? null
+                        : 'Enter valid 10-digit number',
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: password,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: Icon(Icons.lock_outline),
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (v) =>
+                        v != null && v.isNotEmpty ? null : 'Enter password',
+                  ),
+                  const SizedBox(height: 24),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: loading
+                          ? null
+                          : () {
+                              if (_formKey.currentState!.validate()) {
+                                login();
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: loading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'Login',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        "Don't have an account? ",
+                        style: theme.textTheme.bodyMedium,
+                      ),
                       TextButton(
-                        onPressed: _goToForgotPassword,
-                        child: const Text("Forgot Password?",
-                            style: TextStyle(fontSize: 14)),
+                        onPressed: toRegister,
+                        child: const Text("Create one"),
                       ),
                     ],
                   ),
-                ),
-              );
-            },
+
+                  TextButton(
+                    onPressed: _goToForgotPassword,
+                    child: const Text("Forgot Password?",
+                        style: TextStyle(fontSize: 14)),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

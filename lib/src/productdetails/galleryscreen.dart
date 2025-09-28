@@ -1,17 +1,34 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:puvi/src/models/product.dart';
+import 'package:provider/provider.dart';
+import 'package:puvi/src/homepage/homapage.controller.dart';
 
 class GalleryScreen extends StatelessWidget {
-  final Map<String, dynamic> extra;
+  final String slug;
+  final int initialIndex;
 
-  const GalleryScreen({super.key, required this.extra});
+  const GalleryScreen({
+    super.key,
+    required this.slug,
+    this.initialIndex = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Extract values from GoRouter.extra
-    final product = extra['product'] as Product;
-    final initialIndex = extra['initialIndex'] as int? ?? 0;
+    // Access the controller
+    final controller =
+        Provider.of<HomescreenController>(context, listen: false);
+
+    // Fetch product from cache
+    final product = controller.listProduct.firstWhere(
+      (p) => p.slug == slug,
+    );
+
+    if (product == null) {
+      return const Scaffold(
+        body: Center(child: Text("Product not found")),
+      );
+    }
 
     final List<String> imageUrls =
         (product.images != null && product.images!.isNotEmpty)
@@ -48,7 +65,7 @@ class GalleryScreen extends StatelessWidget {
                     scaleEnabled: true,
                     minScale: 0.5,
                     maxScale: 3.0,
-                    constrained: true, // ⚡️ important for Web
+                    constrained: true, // important for Web
                     boundaryMargin: const EdgeInsets.all(20),
                     child: CachedNetworkImage(
                       imageUrl: imageUrls[index],

@@ -167,7 +167,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         }
 
         return Scaffold(
-          appBar: CommonAppBar(title: product.proname),
+          appBar: CommonAppBar(
+            title: product.proname,
+          ),
           body: KeyboardScrollable(
             controller: scrollController,
             child: SingleChildScrollView(
@@ -257,12 +259,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         // Main image (responsive width)
         GestureDetector(
           onTap: () {
+            // ✅ Use path parameters with AppRouteConstants
             context.push(
-              AppRouteConstants.gallery,
-              extra: {
-                'product': product,
-                'initialIndex': selectedImageIndex,
-              },
+              '${AppRouteConstants.gallery}/${product.slug}/$selectedImageIndex',
             );
           },
           child: ClipRRect(

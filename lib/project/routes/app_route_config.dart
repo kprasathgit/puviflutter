@@ -238,10 +238,13 @@ class MyAppRouter {
           },
         ),
         GoRoute(
-          path: AppRouteConstants.gallery,
+          path: '/gallery/:slug/:index', // slug of product + initial index
           builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>;
-            return GalleryScreen(extra: extra);
+            final slug = state.pathParameters['slug']!;
+            final indexStr = state.pathParameters['index'] ?? '0';
+            final initialIndex = int.tryParse(indexStr) ?? 0;
+
+            return GalleryScreen(slug: slug, initialIndex: initialIndex);
           },
         ),
       ],
