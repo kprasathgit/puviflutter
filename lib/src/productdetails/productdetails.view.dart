@@ -257,12 +257,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         // Main image (responsive width)
         GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => GalleryScreen(
-                    product: product, initialIndex: selectedImageIndex),
-              ),
+            context.push(
+              AppRouteConstants.gallery,
+              extra: {
+                'product': product,
+                'initialIndex': selectedImageIndex,
+              },
             );
           },
           child: ClipRRect(

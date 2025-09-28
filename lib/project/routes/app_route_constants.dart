@@ -35,17 +35,17 @@ class AppRouteConstants {
   static const String forgotPassword = '/forgotpassword';
   static const String forgotPasswordName = '/ForgotPassword';
 
-  
   static const String resetPassword = '/resetpassword';
   static const String resetPasswordName = '/ResetPassword';
 
   static const String orders = '/orders';
   static const String ordersName = '/Orders';
 
-static const String paymentstatus = '/paymentstatus';
+  static const String paymentstatus = '/paymentstatus';
   static const String paymentStatusName = '/PaymentStatus';
 
-
+  static const String gallery = '/gallery';
+  static const String galleryName = '/Gallery';
 
   static const String root = '/';
 }

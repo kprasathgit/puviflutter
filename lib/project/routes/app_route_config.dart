@@ -13,11 +13,13 @@ import 'package:puvi/src/forgetpassword/forgetpassword.view.dart';
 import 'package:puvi/src/forgetpassword/resetpassword.view.dart';
 import 'package:puvi/src/homepage/hompage.view.dart';
 import 'package:puvi/src/login/login.view.dart';
+import 'package:puvi/src/models/product.dart';
 import 'package:puvi/src/orderdetails/orderdetails.view.dart';
 import 'package:puvi/src/orderlist/orderlist.view.dart';
 import 'package:puvi/src/ordersummary/ordersummary.view.dart';
 import 'package:puvi/src/payment/payment.view.dart';
 import 'package:puvi/src/payment/paymentresultscreen.dart';
+import 'package:puvi/src/productdetails/galleryscreen.dart';
 import 'package:puvi/src/productdetails/productdetails.view.dart';
 import 'package:puvi/src/settings/settings.view.dart';
 import 'package:puvi/src/userdetails/userdetails.view.dart';
@@ -234,7 +236,14 @@ class MyAppRouter {
             }
             return ResetPasswordScreen(mobile: mobile);
           },
-        )
+        ),
+        GoRoute(
+          path: AppRouteConstants.gallery,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return GalleryScreen(extra: extra);
+          },
+        ),
       ],
       errorPageBuilder: (context, state) => MaterialPage(child: ErrorPage()),
     );

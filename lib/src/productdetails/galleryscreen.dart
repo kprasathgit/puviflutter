@@ -3,17 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:puvi/src/models/product.dart';
 
 class GalleryScreen extends StatelessWidget {
-  final Product product;
-  final int initialIndex;
+  final Map<String, dynamic> extra;
 
-  const GalleryScreen({
-    super.key,
-    required this.product,
-    this.initialIndex = 0,
-  });
+  const GalleryScreen({super.key, required this.extra});
 
   @override
   Widget build(BuildContext context) {
+    // Extract values from GoRouter.extra
+    final product = extra['product'] as Product;
+    final initialIndex = extra['initialIndex'] as int? ?? 0;
+
     final List<String> imageUrls =
         (product.images != null && product.images!.isNotEmpty)
             ? (product.images!
@@ -25,7 +24,7 @@ class GalleryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: FittedBox(
-          fit: BoxFit.scaleDown, // Shrinks text if too long
+          fit: BoxFit.scaleDown,
           alignment: Alignment.centerLeft,
           child: Text(
             product.proname,
@@ -33,16 +32,6 @@ class GalleryScreen extends StatelessWidget {
             maxLines: 1,
           ),
         ),
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.share),
-        //     onPressed: () {},
-        //   ),
-        //   IconButton(
-        //     icon: const Icon(Icons.favorite_border),
-        //     onPressed: () {},
-        //   ),
-        // ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
