@@ -34,11 +34,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   bool isLoadingBuyNow = false;
   int selectedImageIndex = 0;
 
+  late HomescreenController homescreenController;
+
   @override
   void initState() {
     super.initState();
     cartController = Provider.of<CartController>(context, listen: false);
     final controller =
+        Provider.of<HomescreenController>(context, listen: false);
+    homescreenController =
         Provider.of<HomescreenController>(context, listen: false);
     productFuture = controller.getProductBySlug(widget.slug);
   }
@@ -412,9 +416,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
 // 🔹 RELATED PRODUCTS SECTION (FROM CACHED listProduct)
   Widget _buildRelatedProductsSection(Product currentProduct) {
-    final homescreenController =
-        Provider.of<HomescreenController>(context, listen: false);
-
     // Filter related products from cached list, exclude current product
     final relatedProducts = homescreenController.listProduct
         .where((p) =>

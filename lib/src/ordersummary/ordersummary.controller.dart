@@ -11,4 +11,8 @@ class OrderSummaryController with ChangeNotifier {
   Future<Product?> fetchSingleProduct(String slug) async {
     return homescreenService.fetchProductBySlug(slug);
   }
+
+  Future<String?> createOrder(Map<String, dynamic> payload) async {
+    return orderSummaryService.createOrder(payload);
+  }
 }

@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:puvi/src/common/customexception.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:puvi/src/cart/cart.controller.dart';
@@ -165,18 +166,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           );
 
     try {
-      final res = await http.post(
-        Uri.parse(Urls.createOrder),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode(payload),
-      );
+      String? secureKey = await orderSummaryController.createOrder(payload);
 
-      if (res.statusCode == 200) {
-        final secureKey = jsonDecode(res.body)['secureKey'];
-
+      if (secureKey != null && secureKey.isNotEmpty) {
         if (kIsWeb) {
           html.window.localStorage['retryFlow'] =
               flow ?? (widget.slug != null ? 'buyNow' : 'cart');
@@ -189,6 +181,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           const SnackBar(content: Text("⚠️ Order creation failed")),
         );
       }
+    } on CustomException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("$e")),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("⚠️ $e")),

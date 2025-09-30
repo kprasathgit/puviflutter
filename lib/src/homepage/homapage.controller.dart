@@ -60,6 +60,9 @@ class HomescreenController with ChangeNotifier {
     if (cached != null) return cached;
 
     try {
+      if (listProduct.isEmpty) {
+        await fetchProducts(forceRefresh: true);
+      }
       final product = await homescreenService.fetchProductBySlug(slug);
       if (product != null) {
         listProduct.add(product);
