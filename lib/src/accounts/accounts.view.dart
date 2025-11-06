@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:puvi/project/routes/app_route_constants.dart';
 import 'package:puvi/src/common/storageutil.dart';
+import 'package:puvi/src/edituserprofile/edituserprofile.view.dart';
 import 'package:puvi/src/models/user.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -17,28 +18,42 @@ class AccountScreen extends StatelessWidget {
         backgroundColor: theme.appBarTheme.backgroundColor ??
             theme.colorScheme.primary, // ✅ uses theme
       ),
+
+      /// ✅ Combined uid + user notifier logic
       body: ValueListenableBuilder<String?>(
         valueListenable: StorageUtil.uidNotifier,
         builder: (context, uid, _) {
           if (uid == null) {
             return const _LoginPrompt();
-          } else {
-            return FutureBuilder<User?>(
-              future: StorageUtil.getUserLocally(),
-              builder: (context, snapshot) {
-                final user = snapshot.data;
-                if (snapshot.connectionState == ConnectionState.waiting &&
-                    user == null) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.connectionState == ConnectionState.done &&
-                    user == null) {
-                  return const Center(child: Text("User Not Found"));
-                }
-                return _AccountContent(user: user!);
-              },
-            );
           }
+
+          // ✅ Logged in — now listen for user updates
+          return ValueListenableBuilder<User?>(
+            valueListenable: StorageUtil.userNotifier,
+            builder: (context, user, _) {
+              if (user == null) {
+                // fallback: try local read once
+                return FutureBuilder<User?>(
+                  future: StorageUtil.getUserLocally(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final localUser = snapshot.data;
+                    if (localUser == null) {
+                      return const Center(child: Text("User Not Found"));
+                    }
+                    // update notifier so future changes reflect immediately
+                    StorageUtil.userNotifier.value = localUser;
+                    return _AccountContent(user: localUser);
+                  },
+                );
+              }
+
+              // ✅ User loaded and listening to notifier
+              return _AccountContent(user: user);
+            },
+          );
         },
       ),
     );
@@ -131,10 +146,14 @@ class _AccountContent extends StatelessWidget {
                     Text(user.mobileno ?? '',
                         style: theme.textTheme.bodyMedium),
                     if (user.address != null)
-                      Text(user.address!,
-                          style: theme.textTheme.bodySmall),
+                      Text(user.address!, style: theme.textTheme.bodySmall),
                   ],
                 ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () =>
+                    context.push(AppRouteConstants.editUserProfile),
               ),
             ],
           ),

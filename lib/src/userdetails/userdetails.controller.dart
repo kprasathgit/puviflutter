@@ -11,4 +11,8 @@ class UserDetailsController with ChangeNotifier {
     notifyListeners();
     return user;
   }
+
+  Future<User?> updateUserProfile(Map<String, String> updatedData) async {
+    return userDetailsService.updateUserProfile(updatedData);
+  }
 }

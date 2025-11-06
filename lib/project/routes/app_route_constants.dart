@@ -47,5 +47,8 @@ class AppRouteConstants {
   static const String gallery = '/gallery';
   static const String galleryName = '/Gallery';
 
+  static const String editUserProfile = '/edit-profile';
+  static const String editUserProfileName = '/Edit-Profile';
+
   static const String root = '/';
 }

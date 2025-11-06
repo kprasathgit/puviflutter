@@ -25,4 +25,26 @@ class UserDetailsService {
       return null;
     }
   }
+
+  Future<User?> updateUserProfile(Map<String, String> updateData) async {
+    try {
+      final result = await ApiService.post<User>(
+        url: Urls.updateUser,
+        body: updateData,
+        fromJson: (data) => User.fromMap(data),
+      );
+
+      return result.status
+          ? result.returnObject
+          : !result.status
+              ? throw CustomException(
+                  result.message ?? ConstantValues.commonErrorMsg)
+              : null;
+    } on CustomException {
+      rethrow;
+    } catch (e) {
+      print("Error in Registeruser: $e");
+      return null;
+    }
+  }
 }

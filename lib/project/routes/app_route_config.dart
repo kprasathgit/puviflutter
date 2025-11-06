@@ -9,11 +9,11 @@ import 'package:puvi/src/blog/herbalpowderuses.dart';
 import 'package:puvi/src/blog/howwemake.dart';
 import 'package:puvi/src/blog/whypuvipureblog.view.dart';
 import 'package:puvi/src/cart/cart.view.dart';
+import 'package:puvi/src/edituserprofile/edituserprofile.view.dart';
 import 'package:puvi/src/forgetpassword/forgetpassword.view.dart';
 import 'package:puvi/src/forgetpassword/resetpassword.view.dart';
 import 'package:puvi/src/homepage/hompage.view.dart';
 import 'package:puvi/src/login/login.view.dart';
-import 'package:puvi/src/models/product.dart';
 import 'package:puvi/src/orderdetails/orderdetails.view.dart';
 import 'package:puvi/src/orderlist/orderlist.view.dart';
 import 'package:puvi/src/ordersummary/ordersummary.view.dart';
@@ -246,6 +246,10 @@ class MyAppRouter {
 
             return GalleryScreen(slug: slug, initialIndex: initialIndex);
           },
+        ),
+        GoRoute(
+          path: AppRouteConstants.editUserProfile,
+          builder: (context, state) => const EditUserProfile(),
         ),
       ],
       errorPageBuilder: (context, state) => MaterialPage(child: ErrorPage()),

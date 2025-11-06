@@ -76,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await notificationController
             .fetchFromNotificationServer(StorageUtil.uid!);
       }
-
+      
       final redirectTo = widget.next ??
           (widget.flow == ConstantValues.orderSummaryCheckout
               ? CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,

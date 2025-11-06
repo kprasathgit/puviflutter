@@ -219,6 +219,7 @@ class _UserDetailsScreenState extends State<UserDetailsScreen> {
       await StorageUtil.saveUserLocally(user);
       await firestoreController.signInFirebaseWithCustomToken(user.uid!);
 
+
       final redirectTo = widget.next ??
           (widget.flow == 'checkout' && widget.slug != null
               ? CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,

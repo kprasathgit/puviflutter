@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/material.dart';
 import 'package:puvi/main.dart';
 import 'package:puvi/src/models/user.dart';
 import 'package:puvi/src/utility/indexeddbhelper.dart';
 import 'package:universal_html/html.dart' as html;
-import 'package:encrypt/encrypt.dart' as encrypt;
-import 'package:convert/convert.dart';
-import 'dart:math';
 
 class CryptoHelper {
   static final _key = encrypt.Key.fromUtf8('my32lengthsupersecretnooneknows!');
@@ -16,7 +15,8 @@ class CryptoHelper {
   static String encryptText(String plainText) {
     try {
       final iv = encrypt.IV.fromLength(16); // zero IV fallback
-      final encrypter = encrypt.Encrypter(encrypt.AES(_key, mode: encrypt.AESMode.cbc));
+      final encrypter =
+          encrypt.Encrypter(encrypt.AES(_key, mode: encrypt.AESMode.cbc));
       final encrypted = encrypter.encrypt(plainText, iv: iv);
       // Store IV + ciphertext in base64
       final combined = iv.bytes + encrypted.bytes;
@@ -36,7 +36,8 @@ class CryptoHelper {
       final ivBytes = bytes.sublist(0, 16);
       final cipherBytes = bytes.sublist(16);
       final iv = encrypt.IV(ivBytes);
-      final encrypter = encrypt.Encrypter(encrypt.AES(_key, mode: encrypt.AESMode.cbc));
+      final encrypter =
+          encrypt.Encrypter(encrypt.AES(_key, mode: encrypt.AESMode.cbc));
       final encrypted = encrypt.Encrypted(Uint8List.fromList(cipherBytes));
       return encrypter.decrypt(encrypted, iv: iv);
     } catch (e) {
@@ -51,6 +52,7 @@ class StorageUtil {
       ValueNotifier<String?>(_safeDecrypt(html.window.localStorage['uid']));
   static final ValueNotifier<String?> mobileNotifier =
       ValueNotifier<String?>(_safeDecrypt(html.window.localStorage['mobile']));
+  static final ValueNotifier<User?> userNotifier = ValueNotifier<User?>(null);
 
   static String? _safeDecrypt(String? value) {
     if (value == null || value.isEmpty) return null;
@@ -80,6 +82,7 @@ class StorageUtil {
 
     uidNotifier.value = user.uid!;
     mobileNotifier.value = user.mobileno!;
+    userNotifier.value = user;
   }
 
   static String? get uid => _safeDecrypt(html.window.localStorage['uid']);
@@ -87,11 +90,16 @@ class StorageUtil {
 
   static Future<User?> getUserLocally() async {
     final encryptedUser = html.window.localStorage['user'];
-    if (encryptedUser == null) return null;
+    if (encryptedUser == null) {
+      userNotifier.value = null;
+      return null;
+    }
 
     try {
       final decryptedJson = CryptoHelper.decryptText(encryptedUser);
-      return User.fromMap(jsonDecode(decryptedJson));
+      final user = User.fromMap(jsonDecode(decryptedJson));
+      userNotifier.value = user;
+      return user;
     } catch (e) {
       print("Decryption/Parsing failed: $e");
       // Clear broken user storage to avoid future failures
@@ -111,5 +119,6 @@ class StorageUtil {
 
     uidNotifier.value = null;
     mobileNotifier.value = null;
+    userNotifier.value = null;
   }
 }
