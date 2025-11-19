@@ -172,7 +172,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
         return Scaffold(
           appBar: CommonAppBar(
-            title: product.proname,
+            title: Text(product.proname),
           ),
           body: KeyboardScrollable(
             controller: scrollController,

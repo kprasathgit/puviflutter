@@ -76,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await notificationController
             .fetchFromNotificationServer(StorageUtil.uid!);
       }
-      
+
       final redirectTo = widget.next ??
           (widget.flow == ConstantValues.orderSummaryCheckout
               ? CommonMethods.buildRedirectUrl(AppRouteConstants.orderSummary,
@@ -108,7 +108,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final colors = theme.colorScheme;
 
     return Scaffold(
-      appBar: CommonAppBar(title: "Login"),
+      appBar: CommonAppBar(
+        title: Text("Login"),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -138,7 +140,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-
                   if (error != null)
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -160,7 +161,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   if (error != null) const SizedBox(height: 16),
-
                   TextFormField(
                     controller: phone,
                     decoration: InputDecoration(
@@ -186,7 +186,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         v != null && v.isNotEmpty ? null : 'Enter password',
                   ),
                   const SizedBox(height: 24),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -217,7 +216,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   Wrap(
                     alignment: WrapAlignment.center,
                     crossAxisAlignment: WrapCrossAlignment.center,
@@ -232,7 +230,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-
                   TextButton(
                     onPressed: _goToForgotPassword,
                     child: const Text("Forgot Password?",

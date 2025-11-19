@@ -9,7 +9,7 @@ import 'package:puvi/src/notification/notification.view.dart';
 import 'package:puvi/src/widget/rightpanel.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
+  final Widget title;
 
   const CommonAppBar({super.key, required this.title});
 
@@ -40,10 +40,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(
-          title,
-          style: const TextStyle(color: Colors.black),
-        ),
+        title: title,
         centerTitle: true,
         actions: [
           // 🔹 Theme Dropdown Icon

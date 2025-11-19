@@ -10,6 +10,7 @@ import 'package:puvi/src/common/keyboardscrollable.dart';
 import 'package:puvi/src/homepage/homapage.controller.dart';
 import 'package:puvi/src/models/product.dart';
 import 'package:puvi/src/widget/appdrawer.dart';
+import 'package:puvi/src/widget/contactcard.dart';
 import 'package:puvi/src/widget/productcard.dart';
 import 'package:universal_html/html.dart' as html;
 
@@ -95,7 +96,13 @@ class _HomeScreenState extends State<HomeScreen> {
       canPop: _onWillPop(),
       child: Scaffold(
         appBar: CommonAppBar(
-          title: 'PUVIPURE - $selectedTitle',
+          title: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'PUVIPURE - $selectedTitle',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
         ),
         drawer: AppDrawer(onCategorySelected: onCategoryChanged),
         body: FutureBuilder<List<Product>>(
@@ -124,33 +131,57 @@ class _HomeScreenState extends State<HomeScreen> {
                   await newFuture;
                   if (!mounted) return;
                 },
-                child: GridView.builder(
-                  key: PageStorageKey('home_grid'),
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(10),
-                  itemCount: products.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.78,
-                  ),
-                  itemBuilder: (context, index) {
-                    final p = products[index];
-                    return MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () {
-                          final slug = p.slug;
-                          context.go(
-                              '${AppRouteConstants.productDetails}/${Uri.encodeComponent(slug)}');
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: GridView.builder(
+                        key: PageStorageKey('home_grid'),
+                        controller: scrollController,
+                        padding: const EdgeInsets.all(10),
+                        itemCount: products.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 0.78,
+                        ),
+                        itemBuilder: (context, index) {
+                          final p = products[index];
+                          return MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: () {
+                                final slug = p.slug;
+                                context.go(
+                                    '${AppRouteConstants.productDetails}/${Uri.encodeComponent(slug)}');
+                              },
+                              child: ProductCard(product: p),
+                            ),
+                          );
                         },
-                        child: ProductCard(product: p),
                       ),
-                    );
-                  },
+                    ),
+                    // CONTACT FOOTER
+                  ],
                 ),
               ),
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          heroTag: "call_btn",
+          backgroundColor: Colors.blue,
+          child: const Icon(Icons.call),
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              backgroundColor: Colors.transparent,
+              builder: (_) {
+                return const PuvipureContactCard();
+              },
             );
           },
         ),
